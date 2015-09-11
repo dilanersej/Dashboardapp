@@ -1,0 +1,3 @@
+<div data-options="dxView : { name: 'graph', title: 'graph' } " >
+   <iframe src="https://google.dk" height="600" width="360"></iframe>
+</div>
