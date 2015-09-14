@@ -15,11 +15,11 @@ namespace MobileReportService
     public interface IService
     {
         [OperationContract]
-        [WebInvoke(Method = "GET", ResponseFormat=WebMessageFormat.Xml, UriTemplate="/test/{name}")]
+        [WebInvoke(Method = "GET", ResponseFormat=WebMessageFormat.Xml, UriTemplate="/dashboard/{name}")]
         XElement Test(string name);
 
         [OperationContract]
-        [WebInvoke(Method = "GET", ResponseFormat = WebMessageFormat.Xml, UriTemplate = "/test2")]
+        [WebInvoke(Method = "POST", ResponseFormat = WebMessageFormat.Xml, UriTemplate = "/data")]
         XElement GetData(DataModel model);
     }
 }
