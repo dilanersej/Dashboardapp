@@ -19,5 +19,11 @@ namespace MobileReportService
               return xelement;
           }
         }
+
+
+        public XElement GetData(Models.DataModel model)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
