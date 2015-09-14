@@ -1,5 +1,5 @@
 <div data-options="dxView : { name: 'graph', title: 'graph' } " >
     <div data-options="dxContent : { targetPlaceholder: 'content' } ">
-
+        <div id="chart"></div>
     </div>
 </div>

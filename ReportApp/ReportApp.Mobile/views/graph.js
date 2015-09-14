@@ -11,7 +11,7 @@
             xmlDoc.load(xmlObject);
             x = xmlDoc.getElementsByTagName("Items");
             for (i = 0; i < x.length; i++) {
-                console.log(x[i].childNodes[0].nodeName);
+                CheckType(x[i]);
             }
         },
         error: function (err) {
@@ -19,6 +19,38 @@
             console.log("RESPONSE: " + err.responseText);
         }
     })
+
+    function CheckType(xmlType){
+        var type;
+        if(xmlType.lastChild.lastChild.lastChild.lastChild.lastChild.getAttribute('SeriesType') === "undefined"){
+            type = "Bar";
+        } else{
+            type = xmlType.lastChild.lastChild.lastChild.lastChild.lastChild.getAttribute('SeriesType');
+        }
+        switch(xmlType.childNodes[0].nodeName){
+            case "Chart":
+                $("#chart").dxChart({
+                    commomSeriesSettings: {
+                        argumentField: xmlType.lastChild.lastChild.lastChild.lastChild.lastChild.lastChild.getAttribute('UniqueName'),
+                        type: type
+                    },
+                    name: xmlType.getAttribute('Name'),
+
+                });
+                break;
+            case "StackedSplineArea":
+                $("#chart").dxChart({
+                    dataSource: datasource,
+                    commomSeriesSettings: {
+                        argumentField: xmlType.lastChild.lastChild.lastChild.lastChild.lastChild.lastChild.getAttribute('UniqueName'),
+                        type: type
+                    },
+                    name: xmlType.getAttribute('Name'),
+                    argumentField: xmlType.firstChild.firstChild.getAttribute('DataMember'),
+                    valueField: xmlType.firstChild.lastChild.getAttribute('DataMember')
+                });
+        }
+    }
 
     var viewModel = {
 

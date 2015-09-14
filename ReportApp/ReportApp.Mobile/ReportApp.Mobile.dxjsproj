@@ -20,19 +20,15 @@
     <OutputPath>bin\Release\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="index.html" />
     <Content Include="index.css" />
     <Content Include="cordova.js" />
+    <Content Include="index.html">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="views\graph.dxview">
       <SubType>Content</SubType>
     </Content>
     <Content Include="views\graph.js">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="views\xmlReader.dxview">
-      <SubType>Content</SubType>
-    </Content>
-    <Content Include="views\xmlReader.js">
       <SubType>Content</SubType>
     </Content>
     <None Include="config.xml" />
