@@ -5,6 +5,7 @@ using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.Text;
+using System.Xml.Linq;
 
 namespace MobileReportService
 {
@@ -14,6 +15,6 @@ namespace MobileReportService
     {
         [OperationContract]
         [WebInvoke(Method = "GET", ResponseFormat=WebMessageFormat.Xml, UriTemplate="/test/{name}")]
-        string Test(string name);
+        XElement Test(string name);
     }
 }

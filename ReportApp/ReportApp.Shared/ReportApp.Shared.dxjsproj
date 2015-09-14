@@ -8,6 +8,7 @@
     <UploadPluginsToTheCourier>True</UploadPluginsToTheCourier>
     <Name>Shared</Name>
     <RootNamespace>ReportApp</RootNamespace>
+    <UpgradeNotifyShown>15.1.6</UpgradeNotifyShown>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -63,6 +64,9 @@
     <Folder Include="js\" />
     <Folder Include="js\localization\" />
     <Folder Include="views\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="config.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
   <Target Name="ResolveReferences">
