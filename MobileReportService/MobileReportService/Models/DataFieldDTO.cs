@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MobileReportService.Models
 {
-    class DataFieldDTO
+    public class DataFieldDTO
     {
         public string Name { get; set; }
     }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MobileReportService.Models
 {
-    class ParameterDTO
+    public class ParameterDTO
     {
         public string Name { get; set; }
         public string Value { get; set; }
