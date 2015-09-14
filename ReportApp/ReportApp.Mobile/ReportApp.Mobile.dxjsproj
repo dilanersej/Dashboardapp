@@ -28,6 +28,12 @@
     <Content Include="views\graph.js">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="views\xmlReader.dxview">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="views\xmlReader.js">
+      <SubType>Content</SubType>
+    </Content>
     <None Include="config.xml" />
     <Content Include="index.js">
       <SubType>Content</SubType>
