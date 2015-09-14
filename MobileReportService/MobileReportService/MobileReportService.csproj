@@ -59,6 +59,7 @@
     <Compile Include="Catalog.cs">
       <DependentUpon>Report_DB.tt</DependentUpon>
     </Compile>
+    <Compile Include="ConnectionStringBuilder.cs" />
     <Compile Include="IService.cs" />
     <Compile Include="Models\DataFieldDTO.cs" />
     <Compile Include="Models\DataModel.cs" />

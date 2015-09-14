@@ -1,5 +1,7 @@
-﻿using System;
+﻿using MobileReportService.Models;
+using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.ServiceModel;
@@ -21,9 +23,17 @@ namespace MobileReportService
         }
 
 
-        public XElement GetData(Models.DataModel model)
+        public XElement GetData(DataModel model)
         {
-            throw new NotImplementedException();
+            using (SqlConnection sqlConnect = new SqlConnection())
+            {
+                sqlConnect.ConnectionString = new ConnectionStringBuilder().CsBuilder(model);
+                SqlCommand getdata = new SqlCommand("SELECT * FROM ***INSTERTABLENAME**");
+                using (SqlDataReader reader = getdata.ExecuteReader())
+                {
+
+                }
+            } 
         }
     }
 }
