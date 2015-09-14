@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MobileReportService.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -16,5 +17,9 @@ namespace MobileReportService
         [OperationContract]
         [WebInvoke(Method = "GET", ResponseFormat=WebMessageFormat.Xml, UriTemplate="/test/{name}")]
         XElement Test(string name);
+
+        [OperationContract]
+        [WebInvoke(Method = "GET", ResponseFormat = WebMessageFormat.Xml, UriTemplate = "/test2")]
+        XElement GetData(DataModel model);
     }
 }

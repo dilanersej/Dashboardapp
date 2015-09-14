@@ -1,5 +1,0 @@
-<div data-options="dxView : { name: 'xmlReader', title: 'xmlReader' } " >
-    <div  data-options="dxContent : { targetPlaceholder: 'content' } " >
-        <div data-bind="dxTextArea: { value: item }"></div>  
-    </div>
-</div>
