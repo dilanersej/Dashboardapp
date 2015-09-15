@@ -1,15 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace MobileReportService.Models
 {
+    [DataContract]
     public class DataModel
     {
-        public List<ParameterDTO> Parameters { get; set; }
+        [DataMember]
+        public ConnectionStringDTO CsDTO { get; set; }
 
-        public List<DataFieldDTO> DataSet { get; set; }
+        [DataMember]
+        public string Query { get; set; }
     }
 }

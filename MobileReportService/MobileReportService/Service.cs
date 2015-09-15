@@ -1,6 +1,8 @@
 ﻿using MobileReportService.Models;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -23,17 +25,32 @@ namespace MobileReportService
         }
 
 
-        public XElement GetData(DataModel model)
+        public ArrayList GetData(DataModel model)
         {
+            string query = model.Query;
+            ArrayList al = new ArrayList();
+
             using (SqlConnection sqlConnect = new SqlConnection())
             {
                 sqlConnect.ConnectionString = new ConnectionStringBuilder().CsBuilder(model);
-                SqlCommand getdata = new SqlCommand("SELECT * FROM ***INSTERTABLENAME**");
-                using (SqlDataReader reader = getdata.ExecuteReader())
+
+                SqlCommand command = new SqlCommand(query, sqlConnect);
+                sqlConnect.Open();
+
+                SqlDataReader reader = command.ExecuteReader();
+
+                while (reader.Read())
                 {
+                    object[] values = new object[reader.FieldCount];
+                    reader.GetValues(values);
+                    al.Add(values);
 
                 }
-            } 
+
+                // Call Close when done reading.
+                reader.Close();
+                return al;
+            }
         }
     }
 }

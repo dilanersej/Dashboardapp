@@ -13,14 +13,14 @@ namespace MobileReportService
 
         public string CsBuilder(DataModel model)
         {
-            SqlConnection myConnection = new SqlConnection();
+            //SqlConnection myConnection = new SqlConnection();
 
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder();
 
-            builder.UserID = model.Parameters[5].Value;
-            builder.Password = model.Parameters[6].Value;
-            builder.InitialCatalog = model.Parameters[1].Value;
-            builder.DataSource = model.Parameters[0].Value;
+            builder.UserID = model.CsDTO.UserID;
+            builder.Password = model.CsDTO.Password;
+            builder.InitialCatalog = model.CsDTO.Database;
+            builder.DataSource = model.CsDTO.Server;
             builder.ConnectTimeout = 30;
             return builder.ConnectionString;
         }
