@@ -8,12 +8,19 @@ using System.Threading.Tasks;
 namespace MobileReportService.Models
 {
     [DataContract]
-    public class DataModel
+    public class ConnectionStringDTO
     {
         [DataMember]
-        public ConnectionStringDTO CsDTO { get; set; }
+        public string Server { get; set; }
 
         [DataMember]
-        public string Query { get; set; }
+        public string Database { get; set; }
+
+        [DataMember]
+        public string UserID { get; set; }
+
+        [DataMember]
+        public string Password { get; set; }
+
     }
 }

@@ -1,5 +1,6 @@
 ﻿using MobileReportService.Models;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -19,7 +20,7 @@ namespace MobileReportService
         XElement Test(string name);
 
         [OperationContract]
-        [WebInvoke(Method = "POST", ResponseFormat = WebMessageFormat.Xml, UriTemplate = "/data")]
-        XElement GetData(DataModel model);
+        [WebInvoke(Method = "POST", RequestFormat = WebMessageFormat.Json,ResponseFormat = WebMessageFormat.Json, UriTemplate = "/data")]
+        ArrayList GetData(DataModel model);
     }
 }
