@@ -37,11 +37,13 @@
         return dataSource = new DevExpress.data.DataSource({
             load: function (loadOptions) {
                 return $.ajax({
-                    url: baseAddress + '/data',
+                    url: baseAddress + 'data',
                     type: 'POST',
                     data: data,
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
                     success: function (json) {
-                        alert(json);
+                        console.log(json);
                         return json;
                     },
                     error: function (err) {
@@ -57,21 +59,34 @@
         var columList = [];
         var tableList = [];
         var query = "SELECT";
+        var tables = xmlDoc.getElementsByTagName('Table');
         var columns = xmlDoc.getElementsByTagName('Column');
         for (i = 0; i < columns.length; i++) {
             columList[i] = columns[i].getAttribute('Name');
         }
 
-        for (j = 0; j < columList.length; j++) {
-            if (j === 0) {
-                query += " " + columList[j]
-            } else {
-                query += ", " + columList[j];
+        for (h = 0; h < tables.length; h++){
+            for (j = 0; j < columList.length; j++) {
+                if (j === 0) {
+                    query += " " + tables[h].getAttribute('Name') + "." + columList[j]
+                } else {
+                    query += ", " + tables[h].getAttribute('Name') + "." + columList[j];
+                }
             }
         }
 
-        query += " FROM " + xmlDoc.getElementsByTagName('Table')[0].getAttribute('Name');
+        for (k = 0; k < tables.length; k++){
+            tableList[k] = tables[k].getAttribute('Name');
+        }
 
+        for (l = 0; l < tableList.length; l++){
+            if(l === 0){
+                query += " FROM " + tableList[l]
+            } else {
+                query += ", " + tableList[l]
+            }
+        }
+        alert(query);
         return query;
     }
 
@@ -119,7 +134,8 @@
     }
 
     ////CREATE CHART
-    function CreateChart(xmlType) {
+    function CreateChart(xmlType, dataSource) {
+        alert('DATASOURCE' + dataSource);
         $('#chart').dxChart({
             dataSource: dataSource,
             commomSeriesSettings: {
