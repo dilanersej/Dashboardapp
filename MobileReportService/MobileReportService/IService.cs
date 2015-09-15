@@ -21,6 +21,6 @@ namespace MobileReportService
 
         [OperationContract]
         [WebInvoke(Method = "POST", RequestFormat = WebMessageFormat.Json,ResponseFormat = WebMessageFormat.Json, UriTemplate = "/data")]
-        ArrayList GetData(DataModel model);
+        List<string> GetData(DataModel model);
     }
 }

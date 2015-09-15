@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Dynamic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.ServiceModel;
@@ -25,10 +26,11 @@ namespace MobileReportService
         }
 
 
-        public ArrayList GetData(DataModel model)
+        public List<string> GetData(DataModel model)
         {
             string query = model.Query;
             ArrayList al = new ArrayList();
+            List<dynamic> actualList = new List<dynamic>();
 
             using (SqlConnection sqlConnect = new SqlConnection())
             {
@@ -39,17 +41,37 @@ namespace MobileReportService
 
                 SqlDataReader reader = command.ExecuteReader();
 
+                var columns = new List<string>();
+
+                for (int i = 0; i < reader.FieldCount; i++)
+                {
+                    columns.Add(reader.GetName(i));
+                }
+
                 while (reader.Read())
                 {
                     object[] values = new object[reader.FieldCount];
                     reader.GetValues(values);
                     al.Add(values);
 
+                    
+                    for(int j = 0; j < values.Length; j++){
+                        dynamic objClass = new ExpandoObject();
+                        
+                        //CREATE THE OBJECT WITH ALL PROPS
+                        for(int i = 0; i < values.Length; i++){
+                            var key = columns[i].ToString();
+                            objClass.key = values[i];
+                        }
+
+                        actualList.Add(objClass);
+                    }
+
                 }
 
                 // Call Close when done reading.
                 reader.Close();
-                return al;
+                return null;
             }
         }
     }
