@@ -27,7 +27,7 @@ namespace MobileReportService
         }
 
 
-        public string GetData(DataModel model)
+        public List<Dictionary<string, object>> GetData(DataModel model)
         {
             string query = model.Query;
             ArrayList al = new ArrayList();
@@ -64,8 +64,7 @@ namespace MobileReportService
                     list.Add(item);
                 }
                 reader.Close();
-                var tmp = new JavaScriptSerializer().Serialize(list);
-                return tmp;
+                return list;
             }
         }
     }

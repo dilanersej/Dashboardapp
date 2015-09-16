@@ -11,10 +11,7 @@
             xmlDoc.async = false;
             xmlDoc.load(xmlObject);
             var dataSource = GetData(xmlDoc);
-            x = xmlDoc.getElementsByTagName('Items');
-            for (i = 0; i < x.length; i++) {
-                CheckType(x[i], dataSource);
-            }
+            
         },
         error: function (err) {
             alert("STATUSCODE GET XML: " + err.status);
@@ -34,20 +31,29 @@
             },
             'Query': query
         })
-        return dataSource = new DevExpress.data.DataSource({
-            load: function (loadOptions) {
-                return $.ajax({
-                    url: baseAddress + 'data',
-                    type: 'POST',
-                    data: data,
-                    contentType: "application/json; charset=utf-8",
-                    success: function (json) {
-                        alert(json)
-                        console.log(json);
-                        return json;
-                    }
-                })
+        $.ajax({
+            url: baseAddress + 'data',
+            type: 'POST',
+            data: data,
+            contentType: "application/json; charset=utf-8"
+        })
+        .done(function (json) {
+            var tmpArray = [];
+            var jsonArray = json;
+            for (i = 0; i < jsonArray.length; i++) {
+                var item = {};
+                for (j = 0; j < jsonArray[i].length; j++) {
+                    item[jsonArray[i][j].Key] = jsonArray[i][j].Value
+                }
+                tmpArray.push(item);
             }
+            x = xmlDoc.getElementsByTagName('Items');
+            for (i = 0; i < x.length; i++) {
+                CheckType(x[i], tmpArray);
+            }
+        })
+        .error(function (err) {
+            alert("ERROR: " + err.statusCode)
         })
     }
 
@@ -83,7 +89,6 @@
                 query += ", " + tableList[l]
             }
         }
-        alert(query);
         return query;
     }
 
@@ -131,17 +136,16 @@
     }
 
     ////CREATE CHART
-    function CreateChart(xmlType, dataSource) {
-        alert('DATASOURCE' + dataSource);
+    function CreateChart(xmlType, jsonArray) {
+        console.log(JSON.stringify(jsonArray));
         $('#chart').dxChart({
-            dataSource: dataSource,
-            commomSeriesSettings: {
-                argumentField: xmlType.getElementsByTagName('Value')[0].getAttribute('UniqueName'),
+            dataSource: jsonArray,
+            series: { name: 'Test', argumentField: "Product", valueField: "Days", type: 'bar' },
+            commonSeriesSettings: {
                 type: 'bar'
-            },
-            name: xmlType.getAttribute('Name'),
-            argumentField: xmlType.firstChild.firstChild.getAttribute('DataMember'),
-            valueField: xmlType.firstChild.lastChild.getAttribute('DataMember')
+            }
+            //argumentField: xmlType.firstChild.firstChild.firstChild.getAttribute('DataMember'),
+            //valueField: xmlType.firstChild.firstChild.lastChild.getAttribute('DataMember')
 
         });
     }
