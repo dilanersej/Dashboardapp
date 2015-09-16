@@ -17,7 +17,7 @@
             }
         },
         error: function (err) {
-            alert("STATUSCODE: " + err.status);
+            alert("STATUSCODE GET XML: " + err.status);
         }
     })
 
@@ -41,13 +41,10 @@
                     type: 'POST',
                     data: data,
                     contentType: "application/json; charset=utf-8",
-                    dataType: "json",
                     success: function (json) {
+                        alert(json)
                         console.log(json);
                         return json;
-                    },
-                    error: function (err) {
-                        alert("STATUSCODE: " + err.status);
                     }
                 })
             }

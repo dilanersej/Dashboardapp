@@ -1,13 +1,15 @@
 ﻿using MobileReportService.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Dynamic;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.Text;
+using System.Web.Script.Serialization;
 using System.Xml.Linq;
 
 namespace MobileReportService
@@ -25,7 +27,7 @@ namespace MobileReportService
         }
 
 
-        public ArrayList GetData(DataModel model)
+        public string GetData(DataModel model)
         {
             string query = model.Query;
             ArrayList al = new ArrayList();
@@ -39,17 +41,31 @@ namespace MobileReportService
 
                 SqlDataReader reader = command.ExecuteReader();
 
+                var columns = new List<string>();
+
+                for (int i = 0; i < reader.FieldCount; i++)
+                {
+                    columns.Add(reader.GetName(i));
+                }
+
+                var list = new List<Dictionary<string, object>>();
+
                 while (reader.Read())
                 {
                     object[] values = new object[reader.FieldCount];
                     reader.GetValues(values);
-                    al.Add(values);
-
+                    var item = new Dictionary<string, object>();
+                    for (int i = 0; i < columns.Count; i++)
+                    {
+                        var columnName = columns[i];
+                        var value = values[i];
+                        item[columnName]= value;
+                    }
+                    list.Add(item);
                 }
-
-                // Call Close when done reading.
                 reader.Close();
-                return al;
+                var tmp = new JavaScriptSerializer().Serialize(list);
+                return tmp;
             }
         }
     }
