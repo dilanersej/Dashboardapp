@@ -13,6 +13,11 @@ window.ReportApp = $.extend(true, window.ReportApp, {
         "title": "graph",
         "onExecute": "#graph",
         "icon": "graph"
+      },
+      {
+        "title": "main",
+        "onExecute": "#main",
+        "icon": "main"
       }
     ]
   }

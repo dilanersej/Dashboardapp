@@ -20,6 +20,11 @@ namespace MobileReportService
         XElement Test(string name);
 
         [OperationContract]
+        [WebInvoke(Method = "GET", ResponseFormat = WebMessageFormat.Json, UriTemplate = "/dashboards")]
+        List<string> GetAllXMLName();
+
+
+        [OperationContract]
         [WebInvoke(Method = "POST", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json, UriTemplate = "/data")]
         List<Dictionary<string, object>> GetData(DataModel model);
     }

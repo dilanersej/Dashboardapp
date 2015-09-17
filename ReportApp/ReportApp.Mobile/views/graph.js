@@ -4,7 +4,7 @@
 
     //GET DASHBOARD
     var GetDashboard = $.ajax({
-        url: baseAddress + 'dashboard/testBoard(ch og dr)',
+        url: baseAddress + 'dashboard/' + params.id,
         type: 'GET',
         success: function (xmlObject) {
             var xmlDoc = new ActiveXObject('Microsoft.XMLDOM');
@@ -17,6 +17,7 @@
             alert("STATUSCODE GET XML: " + err.status);
         }
     })
+
 
     //GET DATA
     function GetData(xmlDoc) {

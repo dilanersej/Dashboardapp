@@ -31,6 +31,12 @@
     <Content Include="views\graph.js">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="views\main.dxview">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="views\main.js">
+      <SubType>Content</SubType>
+    </Content>
     <None Include="config.xml" />
     <Content Include="index.js">
       <SubType>Content</SubType>
