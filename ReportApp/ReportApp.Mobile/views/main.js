@@ -2,30 +2,29 @@
 
     var baseAddress = 'http://localhost:8733/Design_Time_Addresses/MobileReportService/Service/';
 
-    $.getJSON(baseAddress + "/dashboards", function (data) {
-        var navItems = [];
-        
 
-       for (i = 0; i < data.length; i++) {
-            var item = {
-                title: data[i],
-                onExecute:
-                    function () {
-                        var uri = ReportApp.app.router.format({
-                            view: "graph",
-                            id: data[i].substring(0,data[i]-4)
-                        })
-
-                        ReportApp.app.navigate(uri);
+    var dataSource = new DevExpress.data.DataSource({
+        load: function (loadOptions) {
+            return $.getJSON(baseAddress + "/dashboards",
+                function (data) {
+                    var navItems = [];
+                    var subItems = [];
+                    //navItems.concat(data);
+                    for (i = 0; i < data.length; i++){
+                       subItems = navItems.push(data[i])
+                        subItems.splice(data[i]-4)
                     }
-            };
-            navItems.push(item.title);
+                    return subItems;
+                });
         }
-        ReportApp.app.navigation = navItems;
-    })
+
+    });
+
+
+
 
     var viewModel = {
-//  Put the binding properties here
+        dataSource: dataSource
     };
 
     return viewModel;
