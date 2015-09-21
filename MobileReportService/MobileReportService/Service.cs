@@ -34,7 +34,7 @@ namespace MobileReportService
                 var dbList = db.Catalog.Where(x => x.Path.Contains("/Dashboard/")).Select(x => x.Name).ToList();
                 foreach(var item in dbList)
                 {
-                    nameList.Add(item);
+                    nameList.Add(item.Substring(0,item.Length-4));
                 }
                 return nameList;
             }
