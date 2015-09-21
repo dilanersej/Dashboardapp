@@ -10,12 +10,13 @@
         success: function (xmlObject) {
 
             console.log(xmlObject)
+            console.log(xmlObject.childNodes)
 
             var dataSource = GetData(xmlObject);
             
         },
         error: function (err) {
-            alert("STATUSCODE GET XML: " + err.status);
+            DevExpress.ui.notify('Something went wrong, please try again. CODE: ' + err.statusCode, 'error', 3000);
             console.log(err);
         }
     })
@@ -71,7 +72,7 @@
             }
         })
         .error(function (err) {
-            alert("ERROR: " + err.statusCode);
+            DevExpress.ui.notify('Something went wrong, please try again. CODE: ' + err.statusCode, 'error', 3000);
             console.log(err);
         })
     }

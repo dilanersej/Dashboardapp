@@ -4,10 +4,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Entity.Infrastructure;
 using System.Data.SqlClient;
 using System.Dynamic;
 using System.Linq;
 using System.ServiceModel;
+using System.ServiceModel.Activation;
 using System.ServiceModel.Web;
 using System.Text;
 using System.Web.Script.Serialization;
@@ -15,9 +17,10 @@ using System.Xml.Linq;
 
 namespace MobileReportService
 {
-    
+    [AspNetCompatibilityRequirements(RequirementsMode = AspNetCompatibilityRequirementsMode.Allowed)]
     public class Service : IService
     {
+        enum codes { success = 1, fail = -1, no_user = -2, user_exists = -3 }
 
         public void GetOptions()
         {
@@ -25,7 +28,12 @@ namespace MobileReportService
             WebOperationContext.Current.OutgoingResponse.Headers.Add("Access-Control-Allow-Headers", "Content-Type");
         }
 
-        public XElement Test(string name)
+        /// <summary>
+        /// Returns the dashboard (XML) with the given name
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns>XElement (XML)</returns>
+        public XElement GetDashboardByName(string name)
         {
           using (var db = new ReportEntities())
           {
@@ -34,12 +42,16 @@ namespace MobileReportService
           }
         }
 
+        /// <summary>
+        /// Return a list of with all the names of all XML files on the server
+        /// </summary>
+        /// <returns>List of names (string)</returns>
         public List<string> GetAllXMLName()
         {
             var nameList = new List<string>();
             using ( var db = new ReportEntities())
             {
-                var dbList = db.Catalog.Where(x => x.Path.Contains("/Dashboard/")).Select(x => x.Name).ToList();
+                var dbList = db.Catalog.Where(x => x.Path.Contains("/Dashboard/") && x.Path.Contains(".xml")).Select(x => x.Name).ToList();
                 foreach(var item in dbList)
                 {
                     nameList.Add(item.Substring(0,item.Length-4));
@@ -48,7 +60,11 @@ namespace MobileReportService
             }
         }
 
-
+        /// <summary>
+        /// Return the data given in the model.Query
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns>List of Key/Value pairs</returns>
         public List<Dictionary<string, object>> GetData(DataModel model)
         {
             string query = model.Query;
@@ -87,6 +103,81 @@ namespace MobileReportService
                 }
                 reader.Close();
                 return list;
+            }
+        }
+        
+        /// <summary>
+        /// Creates a login with the given parameters
+        /// </summary>
+        /// <param name="login"></param>
+        public int CreateLogin(LoginDTO login)
+        {
+            try
+            {
+                using (var db = new ReportAppLoginEntities())
+                {
+                    db.Login.Add(new Login()
+                    {
+                        Username = login.Username,
+                        Password = login.Password
+                    });
+                    db.SaveChanges();
+                }
+                return (int)codes.success;
+            } catch(DbUpdateException e){
+                return (int)codes.user_exists;
+            } catch(Exception e){
+                return (int)codes.fail;
+            }
+            
+        }
+
+        /// <summary>
+        /// Return the Login with the given username
+        /// </summary>
+        /// <param name="username"></param>
+        /// <returns>A LoginDTO</returns>
+        public LoginDTO GetUserByUsername(string username)
+        {
+            try
+            {
+                using(var db = new ReportAppLoginEntities()){
+
+                    var login = db.Login.FirstOrDefault(x => x.Username.Equals(username));
+
+                    if(login == null){
+                        return new LoginDTO() { Code = (int)codes.no_user };
+                    }
+
+                    return new LoginDTO()
+                    {
+                        ID = login.ID,
+                        Username = login.Username,
+                        Password = login.Password,
+                        Code = (int)codes.success
+                    };
+                }
+            } catch(Exception e){
+                return new LoginDTO() { Code = -1 };
+            }
+        }
+
+        /// <summary>
+        /// Deletes the login with the given stringId
+        /// </summary>
+        /// <param name="stringId"></param>
+        public int DeleteUser(string stringId)
+        {
+            try
+            {
+                var id = Int64.Parse(stringId);
+                using(var db = new ReportAppLoginEntities()){
+                    db.Login.Remove(db.Login.FirstOrDefault(x => x.ID == id));
+                    db.SaveChanges();
+                }
+                return (int)codes.success;
+            } catch (Exception e){
+                return (int)codes.fail;
             }
         }
     }

@@ -10,14 +10,22 @@ window.ReportApp = $.extend(true, window.ReportApp, {
         "icon": "info"
       },
       {
-        "title": "graph",
-        "onExecute": "#graph",
-        "icon": "graph"
+        "title": "Dashboards",
+        "onExecute": "#main",
+        "icon": "doc",
+        visible: ko.observable(false)
       },
       {
-        "title": "main",
-        "onExecute": "#main",
-        "icon": "main"
+        "title": "Logout",
+        "onExecute": "#login",
+        "icon": "key",
+        visible: ko.observable(false)
+      },
+      {
+          "title": "Login",
+          "onExecute": "#login",
+          "icon": "key",
+          visible: ko.observable(true)
       }
     ]
   }
