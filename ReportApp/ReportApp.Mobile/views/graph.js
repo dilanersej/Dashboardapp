@@ -1,6 +1,6 @@
 ﻿ReportApp.graph = function (params) {
 
-    var baseAddress = 'http://172.20.40.125:7741/MobileReportService.Service.svc/';
+    var baseAddress = 'http://172.20.40.126:7741/MobileReportService.Service.svc/';
 
     //GET DASHBOARD
     var GetDashboard = $.ajax({
@@ -120,31 +120,31 @@
             case 'Chart':
                 CreateChart(xmlType, dataSource)
                 break;
-            //PIE
+                //PIE
             case 'Pie':
                 CreatePie(xmlType, dataSource);
                 break;
-            //GAUGE
+                //GAUGE
             case 'Gauge': 
                 CreateGauge(xmlType, dataSource)
                 break;
-            //COMBO BOX
+                //COMBO BOX
             case 'ComboBox':
                 CreateComboBox(xmlType, dataSource);
                 break;
-    //        //RANGE FILTER
-    //        case 'RangeFilter':
-    //            CreateRangeFilter(xmlType);
-    //            break;
-    //        //LIST BOX
-            //case 'ListBox':
-            //    CreateListBox(xmlType. dataSource);
-            //    break;
-    //        //TREE VIEW
-    //        case 'TreeView':
-    //            CreateTreeView(xmlType);
-    //            break;
-            //GRID
+                //        //RANGE FILTER
+                //        case 'RangeFilter':
+                //            CreateRangeFilter(xmlType);
+                //            break;
+                //        //LIST BOX
+                //case 'ListBox':
+                //    CreateListBox(xmlType. dataSource);
+                //    break;
+                        //TREE VIEW
+                        case 'TreeView':
+                            CreateTreeView(xmlType);
+                            break;
+                //GRID
             case 'Grid':
                 CreateGrid(xmlType, dataSource);
                 break;
@@ -348,7 +348,7 @@
         var display = xmlType.childNodes[1].firstChild.getAttribute('DataMember');
         var value = xmlType.childNodes[1].lastChild.getAttribute('DataMember');
 
-         $('<div class="content-style combo-box">').appendTo('.content').dxSelectBox({
+        $('<div class="content-style combo-box">').appendTo('.content').dxSelectBox({
             dataSource: jsonArray,
             displayExpr: display,
             valueExpr: value
@@ -368,24 +368,50 @@
 
     //CREATE LIST BOX
     //function CreateListBox(xmlType, jsonArray) {
-    //    $('<div class="content-style list-box">').appendTo('.content').dxList({
-    //        dataSource: jsonArray,
-    //        showSelectionControls: true,
-    //        onSelectionChanged: function (data) {
-    //            alert(data);
-    //        }
-    //    })
+    //    for (k = 0; k < jsonArray.length; k++) {
+    //        var jsonItem = jsonArray[k];
+    //        var value = jsonItem[xmlType.firstChild.lastChild.getAttribute('DataMember')];
+
+    //        $('<div class="content-style list-box">').appendTo('.content').dxList({
+    //            dataSource: jsonArray,
+    //            showSelectionControls: true,
+    //            onSelectionChanged: function (data) {
+    //                alert(data);
+    //            }
+    //        })
+    //        return jsonArray;
+    //    }
     //}
+
+
 
     ////CREATE TREE VIEW
-    //function CreateTreeView(xmlType) {
-    //    $('<div class="content-style treeview">').appendTo('.content').dxTreeView({
-    //        dataSource: function () {
+    function CreateTreeView(xmlType, jsonArray) {
+        var treeViewData = [
+    { id: 1, parentId: 0, text: "Animals" },
+    { id: 2, parentId: 1, text: "Cat" },
+    { id: 3, parentId: 1, text: "Dog" },
+    { id: 4, parentId: 1, text: "Cow" },
+    { id: 5, parentId: 2, text: "Abyssinian" },
+    { id: 6, parentId: 2, text: "Aegean cat" },
+    { id: 7, parentId: 2, text: "Australian Mist" },
+    { id: 8, parentId: 3, text: "Affenpinscher" },
+    { id: 9, parentId: 3, text: "Afghan Hound" },
+    { id: 10, parentId: 3, text: "Airedale Terrier" },
+    { id: 11, parentId: 3, text: "Akita Inu" },
+    { id: 12, parentId: 0, text: "Birds" },
+    { id: 13, parentId: 12, text: "Akekee" },
+    { id: 14, parentId: 12, text: "Arizona Woodpecker" },
+    { id: 15, parentId: 12, text: "Black-chinned Sparrow" }
+        ];
+        //var value = xmlType.firstChild.childNodes.getAttribute('DataMember');
 
-    //        },
-    //        dataStructure: 'plain'
-    //    })
-    //}
+            $('<div class="content-style treeview">').appendTo('.content').dxTreeView({
+                dataSource: treeViewData,
+                dataStructure: 'plain'
+            })
+        
+    }
 
     //CREATE GRID
     function CreateGrid(xmlType, jsonArray) {
