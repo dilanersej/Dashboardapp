@@ -7,24 +7,29 @@
         load: function (loadOptions) {
             return $.getJSON(baseAddress + "/dashboards",
                 function (data) {
-                    var navItems = [];
-                    var subItems = [];
-                    //navItems.concat(data);
-                    for (i = 0; i < data.length; i++){
-                       subItems = navItems.push(data[i])
-                        subItems.splice(data[i]-4)
-                    }
-                    return subItems;
+                    return data;
                 });
         }
-
+       
     });
 
 
+    function graphNavigation(xmlName) {
+        var uri = ReportApp.app.router.format({
+            view: 'graph',
+            id: xmlName
+        });
+
+        ReportApp.app.navigate(uri);
+    }
 
 
     var viewModel = {
-        dataSource: dataSource
+        dataSource: dataSource,
+        itemClicked: function(item)
+        {
+            graphNavigation(item.itemData);
+        }
     };
 
     return viewModel;
