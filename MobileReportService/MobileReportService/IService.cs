@@ -15,6 +15,11 @@ namespace MobileReportService
     [ServiceContract]
     public interface IService
     {
+
+        [OperationContract]
+        [WebInvoke(Method = "OPTIONS", UriTemplate = "*")]
+        void GetOptions();
+
         [OperationContract]
         [WebInvoke(Method = "GET", ResponseFormat=WebMessageFormat.Xml, UriTemplate="/dashboard/{name}")]
         XElement Test(string name);

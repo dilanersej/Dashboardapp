@@ -4,7 +4,7 @@
 
     //GET DASHBOARD
     var GetDashboard = $.ajax({
-        url: baseAddress + 'dashboard/ReportTestApp2',
+        url: baseAddress + 'dashboard/' + params.id,
         type: 'GET',
         contentType: 'text/xml',
         success: function (xmlObject) {
@@ -399,7 +399,7 @@
             dataSource: jsonArray,
             columns: columnsList,
             paging: {
-                pageSize: 2
+                pageSize: 5
             },
             rowPrepared: function (rowElement, rowInfo) {
                 rowElement.css('background', '#282828');

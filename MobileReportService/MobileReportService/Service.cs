@@ -8,6 +8,7 @@ using System.Data.SqlClient;
 using System.Dynamic;
 using System.Linq;
 using System.ServiceModel;
+using System.ServiceModel.Web;
 using System.Text;
 using System.Web.Script.Serialization;
 using System.Xml.Linq;
@@ -17,6 +18,13 @@ namespace MobileReportService
     
     public class Service : IService
     {
+
+        public void GetOptions()
+        {
+            WebOperationContext.Current.OutgoingResponse.Headers.Add("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+            WebOperationContext.Current.OutgoingResponse.Headers.Add("Access-Control-Allow-Headers", "Content-Type");
+        }
+
         public XElement Test(string name)
         {
           using (var db = new ReportEntities())
