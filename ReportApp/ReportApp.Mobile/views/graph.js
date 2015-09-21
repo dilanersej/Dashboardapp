@@ -1,33 +1,50 @@
 ﻿ReportApp.graph = function (params) {
 
-    var baseAddress = 'http://localhost:8733/Design_Time_Addresses/MobileReportService/Service/';
+    var baseAddress = 'http://172.20.40.125:7741/MobileReportService.Service.svc/';
 
     //GET DASHBOARD
     var GetDashboard = $.ajax({
-        url: baseAddress + 'dashboard/testBoard(ch og dr)',
+        url: baseAddress + 'dashboard/ReportTestApp2',
         type: 'GET',
+        contentType: 'text/xml',
         success: function (xmlObject) {
-            var xmlDoc = new ActiveXObject('Microsoft.XMLDOM');
-            xmlDoc.async = false;
-            xmlDoc.load(xmlObject);
-            var dataSource = GetData(xmlDoc);
+
+            console.log(xmlObject)
+
+            var dataSource = GetData(xmlObject);
             
         },
         error: function (err) {
             alert("STATUSCODE GET XML: " + err.status);
+            console.log(err);
         }
     })
 
     //GET DATA
     function GetData(xmlDoc) {
         var query = BuildQuery(xmlDoc);
-        x = xmlDoc.getElementsByTagName('Parameters')[0];
+        var parameters = xmlDoc.getElementsByTagName('Parameters')[0].childNodes;
+        var server = "";
+        var database = "";
+        var userId = "";
+        var password = "";
+        for (k = 0; k < parameters.length; k++){
+            if(parameters[k].getAttribute('Name') === 'server'){
+                server = parameters[k].getAttribute('Value');
+            } else if (parameters[k].getAttribute('Name') === 'database') {
+                database = parameters[k].getAttribute('Value');
+            } else if (parameters[k].getAttribute('Name') === 'userid') {
+                userId = parameters[k].getAttribute('Value');
+            } else if (parameters[k].getAttribute('Name') === 'password') {
+                password = parameters[k].getAttribute('Value');
+            }
+        }
         var data = JSON.stringify({
             'CsDTO': {
-                'UserID': x.childNodes[5].getAttribute('Value'),
-                'Password': x.childNodes[6].getAttribute('Value'),
-                'Server': x.childNodes[0].getAttribute('Value'),
-                'Database': x.childNodes[1].getAttribute('Value')
+                'UserID': userId,
+                'Password': password,
+                'Server': server,
+                'Database': database
             },
             'Query': query
         })
@@ -47,13 +64,15 @@
                 }
                 tmpArray.push(item);
             }
-            x = xmlDoc.getElementsByTagName('Items');
+            x = xmlDoc.getElementsByTagName('Items')[0].childNodes;
             for (i = 0; i < x.length; i++) {
+                console.log(i);
                 CheckType(x[i], tmpArray);
             }
         })
         .error(function (err) {
-            alert("ERROR: " + err.statusCode)
+            alert("ERROR: " + err.statusCode);
+            console.log(err);
         })
     }
 
@@ -62,18 +81,15 @@
         var columList = [];
         var tableList = [];
         var query = "SELECT";
+        var relations = [];
         var tables = xmlDoc.getElementsByTagName('Table');
-        var columns = xmlDoc.getElementsByTagName('Column');
-        for (i = 0; i < columns.length; i++) {
-            columList[i] = columns[i].getAttribute('Name');
-        }
 
         for (h = 0; h < tables.length; h++){
-            for (j = 0; j < columList.length; j++) {
-                if (j === 0) {
-                    query += " " + tables[h].getAttribute('Name') + "." + columList[j]
+            for (j = 0; j < tables[h].childNodes.length; j++) {
+                if (h === 0 && j === 0) {
+                    query += " " + tables[h].getAttribute('Name') + "." + tables[h].childNodes[j].getAttribute('Name')
                 } else {
-                    query += ", " + tables[h].getAttribute('Name') + "." + columList[j];
+                    query += ", " + tables[h].getAttribute('Name') + "." + tables[h].childNodes[j].getAttribute('Name');
                 }
             }
         }
@@ -82,155 +98,265 @@
             tableList[k] = tables[k].getAttribute('Name');
         }
 
-        for (l = 0; l < tableList.length; l++){
-            if(l === 0){
-                query += " FROM " + tableList[l]
-            } else {
-                query += ", " + tableList[l]
-            }
+        if (xmlDoc.getElementsByTagName('Relation') != null) {
+            relations = xmlDoc.getElementsByTagName('Relation');
         }
+
+        query += " FROM " + tableList[tableList.length-1];
+
+        for (k = 0; k < relations.length; k++) {
+            query += " JOIN " + relations[k].getAttribute('Parent') + " ON " + relations[k].getAttribute('Nested') + "." + relations[k].firstChild.getAttribute('Nested') + " = " + relations[k].getAttribute('Parent') + "." + relations[k].firstChild.getAttribute('Parent');
+        }
+
         return query;
     }
 
     //CHECK TYPE
     function CheckType(xmlType, dataSource) {
         //DETECT THE WIDGET TYPE AND CREATE THE WIDGET
-        switch (xmlType.childNodes[0].nodeName) {
+        switch (xmlType.nodeName) {
             //CHART
             case 'Chart':
                 CreateChart(xmlType, dataSource)
                 break;
-    //        //PIE
-    //        case 'Pie':
-    //            CreatePie(xmlType, dataSource);
-    //            break;
-    //        //PIVOT
-    //        case 'Pivot':
-    //            CreatePivot(xmlType);
-    //            break;
-    //        //GAUGE
-    //        case 'Gauge': 
-    //            CreateGauge(xmlType)
-    //            break;
-    //        //COMBO BOX
-    //        case 'ComboBox':
-    //            CreateComboBox(xmlType);
-    //            break;
+            //PIE
+            case 'Pie':
+                CreatePie(xmlType, dataSource);
+                break;
+            //GAUGE
+            case 'Gauge': 
+                CreateGauge(xmlType, dataSource)
+                break;
+            //COMBO BOX
+            case 'ComboBox':
+                CreateComboBox(xmlType, dataSource);
+                break;
     //        //RANGE FILTER
     //        case 'RangeFilter':
     //            CreateRangeFilter(xmlType);
     //            break;
     //        //LIST BOX
-    //        case 'ListBox':
-    //            CreateListBox(xmlType);
-    //            break;
+            //case 'ListBox':
+            //    CreateListBox(xmlType. dataSource);
+            //    break;
     //        //TREE VIEW
     //        case 'TreeView':
     //            CreateTreeView(xmlType);
     //            break;
-    //        //GRID
-    //        case 'Grid':
-    //            CreateGrid(xmlType);
-    //            break;
+            //GRID
+            case 'Grid':
+                CreateGrid(xmlType, dataSource);
+                break;
         }
     }
 
-    ////CREATE CHART
+    //CREATE CHART 
     function CreateChart(xmlType, jsonArray) {
-        console.log(JSON.stringify(jsonArray));
-        $('#chart').dxChart({
-            dataSource: jsonArray,
-            series: { name: 'Test', argumentField: "Product", valueField: "Days", type: 'bar' },
-            commonSeriesSettings: {
-                type: 'bar'
-            }
-            //argumentField: xmlType.firstChild.firstChild.firstChild.getAttribute('DataMember'),
-            //valueField: xmlType.firstChild.firstChild.lastChild.getAttribute('DataMember')
+        var type = "";
+        var seriesList = [];
+        var title = xmlType.getAttribute('Name')
+        
+        if (xmlType.lastChild.firstChild.firstChild.firstChild.getAttribute('SeriesType') === null) {
+            type = "bar";
+        }else {
+            type = xmlType.lastChild.firstChild.firstChild.firstChild.getAttribute('SeriesType').toLowerCase();
+        }
 
+        if (xmlType.getElementsByTagName('SeriesDimensions')[0] != null) {
+            var seriesDimensions = xmlType.getElementsByTagName('SeriesDimensions')[0].childNodes;
+            for (k = 0; k < seriesDimensions.length; k++) {
+                var name = "";
+                var argument = "";
+                var dataItems = xmlType.getElementsByTagName('DataItems')[0].childNodes;
+                for (l = 0; l < dataItems.length ; l++){
+                    if (seriesDimensions[k].getAttribute('UniqueName') === dataItems[l].getAttribute('UniqueName')) {
+                        name = dataItems[l].getAttribute('DataMember');
+                        argument = name;
+                    }
+                }
+                seriesList.push({ name: name, argumentField:argument, valueField: xmlType.firstChild.getElementsByTagName('Measure')[0].getAttribute("DataMember"), type: type })
+            }
+        } else {
+            seriesList.push({ name: xmlType.firstChild.getElementsByTagName('Measure')[0].getAttribute('DataMember'), argumentField: xmlType.firstChild.getElementsByTagName('Dimension')[0].getAttribute("DataMember"), valueField: xmlType.firstChild.getElementsByTagName('Measure')[0].getAttribute("DataMember"), type: type })
+        }
+        $('<div class="content-style chart">').appendTo('.content').dxChart({
+            dataSource: jsonArray,
+            series: seriesList,
+            commonSeriesSettings: {
+                type: type
+            },
+            title: {
+                text: title,
+                font: {
+                    color: '#afafaf',
+                    size: 18
+                }
+            },
+            size: {
+                height: 300
+            }
         });
     }
 
-    ////CREATE PIE
-    //function CreatePie(xmlType) {
-    //    $('#pie').dxPieChart({
-    //        dataSource: function () {
+    //CREATE PIE CHART 
+    function CreatePie(xmlType, jsonArray) {
+        var series = {};
+        var value = "";
+        var argument = "";
+        var title = xmlType.getAttribute('Name');
+        var dataItems = xmlType.getElementsByTagName('DataItems')[0].childNodes;
 
-    //        },
-    //        series: {
-    //            argumentField: xmpType.childNodes[1].lastChild.getAttribute('UniqueName'),
-    //            valueField: xmlType.lastChild.lastChild.getAttribute('UniqueName'),
-    //        }
-    //    });
-    //}
+        var argumentUniqueName = xmlType.getElementsByTagName('Arguments')[0].firstChild.getAttribute('UniqueName');
+        var valueUniqueName = xmlType.getElementsByTagName('Values')[0].firstChild.getAttribute('UniqueName');
 
-    ////CREATE PIVOT
-    //function CreatePivot(xmlType) {
-    //    $('#pivot').dxPivot({
-    //        dataSource: function () {
+        for (k = 0; k < dataItems.length; k++){
+            if(dataItems[k].getAttribute('UniqueName') === argumentUniqueName){
+                argument = dataItems[k].getAttribute('DataMember');
+            } else if(dataItems[k].getAttribute('UniqueName') === valueUniqueName){
+                value = dataItems[k].getAttribute('DataMember');
+            }
+        }
 
-    //        }
-    //    });
-    //}
+        series = {
+            name: argument,
+            argumentField: argument,
+            valueField: value,
+            label: {
+                visible: true,
+                connector: {
+                    visible: true,
+                    width: 1
+                }
+            }
+        };
 
-    ////CREATE GAUGE
-    //function CreateGauge(xmlType) {
-    //    if (xmlType.getAttribute('ViewType') === 'LinearVertical') {
-    //        $('#gauge').dxLinearGauge({
-    //            geomerty: { orientation: 'vertical' },
-    //            scale: {
-    //                startValue: 0,
-    //                endValue: 120,
-    //                majorTick: {
-    //                    tickInterval: 20
-    //                }
-    //            },
-    //            value: function () {
+        $('<div class="content-style pie">').appendTo('.content').dxPieChart({
+            dataSource: jsonArray,
+            series: series,
+            title: {
+                text: title,
+                font: {
+                    color: '#afafaf',
+                    size: 18
+                }
+            },
+            onPointClick: function (e) {
+                var point = e.target;
+                point.isVisible() ? point.hide() : point.show();
+            },
+            size: {
+                height: 300
+            }
+        });
+    }
 
-    //            }
-    //        })
-    //    } else if (xmlType.getAttribute('ViewType') === 'LinearHorizontal') {
-    //        $('#gauge').dxLinearGauge({
-    //            scale: {
-    //                startValue: 0,
-    //                endValue: 120,
-    //                majorTick: {
-    //                    tickInterval: 20
-    //                }
-    //            },
-    //            value: function () {
+    //CREATE GAUGE 
+    function CreateGauge(xmlType, jsonArray) {
 
-    //            }
-    //        })
-    //    } else {
-    //        $('#gauge').dxCircularGauge({
-    //            scale: {
-    //                startValue: 0,
-    //                endValue: 120,
-    //                majorTick: {
-    //                    tickInterval: 20
-    //                }
-    //            },
-    //            value: function () {
+        var endValue = 0;
+        for (k = 0; k < jsonArray.length; k++){
+            var value = xmlType.firstChild.lastChild.getAttribute('DataMember')
+            if(k === 0){
+                endValue = jsonArray[k][value];
+            } else if(jsonArray[k][value] > endValue){
+                endValue = jsonArray[k][value];
+            }
+        }
 
-    //            }
-    //        })
-    //    }
-    //}
+        if (xmlType.getAttribute('ViewType') === 'LinearVertical') {
+            //VERTICAL GAUGE
+            var title = xmlType.getAttribute('Name')
+            for (k = 0; k < jsonArray.length; k++) {
+                var jsonItem = jsonArray[k];
+                var value = jsonItem[xmlType.firstChild.lastChild.getAttribute('DataMember')];
+                $('<div class="content-style gauge">').appendTo('.content').dxLinearGauge({
+                    geomerty: { orientation: 'vertical' },
+                    scale: {
+                        startValue: 0,
+                        endValue: endValue
+                    },
+                    value: value,
+                    title: {
+                        text: title,
+                        font: {
+                            color: '#afafaf',
+                            size: 18
+                        }
+                    },
+                    size: {
+                        height: 200
+                    }
+                })
+            }
+        } else if (xmlType.getAttribute('ViewType') === 'LinearHorizontal') {
+            //HORIZONTAL GAUGE
+            var title = xmlType.getAttribute('Name')
+            for (k = 0; k < jsonArray.length; k++) {
+                var jsonItem = jsonArray[k];
+                var value = jsonItem[xmlType.firstChild.lastChild.getAttribute('DataMember')];
+                $('<div class="content-style gauge">').appendTo('.content').dxLinearGauge({
+                    scale: {
+                        startValue: 0,
+                        endValue: endValue
+                    },
+                    value: value,
+                    title: {
+                        text: title,
+                        font: {
+                            color: '#afafaf',
+                            size: 18
+                        }
+                    },
+                    size: {
+                        height: 200
+                    }
+                })
+            }
+        } else {
+            //CIRCULAR GAUGE
+            var title = xmlType.getAttribute('Name')
+            for (k = 0; k < jsonArray.length; k++) {
+                var jsonItem = jsonArray[k];
+                var value = jsonItem[xmlType.firstChild.lastChild.getAttribute('DataMember')];
+                $('<div class="content-style gauge">').appendTo('.content').dxCircularGauge({
+                    scale: {
+                        startValue: 0,
+                        endValue: endValue
+                    },
+                    value: value,
+                    title: {
+                        text: title,
+                        font: {
+                            color: '#afafaf',
+                            size: 18
+                        }
+                    },
+                    size: {
+                        height: 200
+                    },
+                    valueIndicator: {
+                        type: 'triangleNeedle'
+                    }
+                })
+            }
+        }
+    }
 
-    ////CREATE COMBO BOX
-    //function CreateComboBox(xmlType) {
-    //    $('#combobox').dxSelectBox({
-    //        dataSource: function () {
+    //CREATE COMBO BOX
+    function CreateComboBox(xmlType, jsonArray) {
+        var display = xmlType.childNodes[1].firstChild.getAttribute('DataMember');
+        var value = xmlType.childNodes[1].lastChild.getAttribute('DataMember');
 
-    //        },
-    //        displayExpr: xmlType.lastChild.lastChild.getAttribute('UniqueName'),
-    //        valueExpr: xmlType.childNodes[1].lastChild.getAttribute('UniqueName')
-    //    });
-    //}
+         $('<div class="content-style combo-box">').appendTo('.content').dxSelectBox({
+            dataSource: jsonArray,
+            displayExpr: display,
+            valueExpr: value
+        });
+    }
 
     ////CREATE RANGE FILTER
     //function CreateRangeFilter(xmlType) {
-    //    $('rangefilter').dxRangeSelector({
+    //     $('<div class="content-style range-selector">').appendTo('.content').dxRangeSelector({
     //        scale: {
     //            startValue: 0,
     //            endValue: 120,
@@ -239,14 +365,20 @@
     //    })
     //}
 
-    ////CREATE LIST BOX
-    //function CreateListBox(xmlType) {
-
+    //CREATE LIST BOX
+    //function CreateListBox(xmlType, jsonArray) {
+    //    $('<div class="content-style list-box">').appendTo('.content').dxList({
+    //        dataSource: jsonArray,
+    //        showSelectionControls: true,
+    //        onSelectionChanged: function (data) {
+    //            alert(data);
+    //        }
+    //    })
     //}
 
     ////CREATE TREE VIEW
     //function CreateTreeView(xmlType) {
-    //    $('treeview').dxTreeView({
+    //    $('<div class="content-style treeview">').appendTo('.content').dxTreeView({
     //        dataSource: function () {
 
     //        },
@@ -254,10 +386,27 @@
     //    })
     //}
 
-    ////CREATE GRID
-    //function CreateGrid(xmlType) {
-
-    //}
+    //CREATE GRID
+    function CreateGrid(xmlType, jsonArray) {
+        var columnsList = [];
+        var xmlColumns = xmlType.getElementsByTagName('GridColumns')[0].childNodes;
+        var xmlDataItems = xmlType.firstChild.childNodes;
+        for (j = 0; j < xmlDataItems.length; j++){
+            columnsList.push(xmlDataItems[j].getAttribute('DataMember'));
+        }
+        
+        $('<div class="content-style grid">').appendTo('.content').dxDataGrid({
+            dataSource: jsonArray,
+            columns: columnsList,
+            paging: {
+                pageSize: 2
+            },
+            rowPrepared: function (rowElement, rowInfo) {
+                rowElement.css('background', '#282828');
+                rowElement.css('color', '#a1a1a1');
+            }
+        })
+    }
 
     var viewModel = {
 

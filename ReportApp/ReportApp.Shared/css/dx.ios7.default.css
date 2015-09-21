@@ -5571,6 +5571,7 @@
   -o-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
+  background: rgba(0,0,0,0);
 }
 .dx-pager .dx-pages .dx-prev-button
 {
@@ -5587,7 +5588,6 @@
 .dx-pager .dx-pages .dx-selection, .dx-pager .dx-page-sizes .dx-selection
 {
   text-shadow: none;
-  background-color: #9ae493;
 }
 .dx-colorview-container label.dx-colorview-alpha-channel-label
 {
@@ -5954,7 +5954,7 @@
 }
 .dx-datagrid-header-text
 {
-  text-transform: uppercase;
+  text-transform: capitalize;
   font-size: .9em;
   font-weight: bold;
 }
@@ -6040,7 +6040,7 @@
 .dx-datagrid-headers
 {
   color: #4d4d4d;
-  text-transform: uppercase;
+  text-transform: capitalize;
   font-size: .9em;
   font-weight: bold;
   -ms-touch-action: pinch-zoom;
@@ -6054,7 +6054,7 @@
 }
 .dx-datagrid-headers .dx-datagrid-table .dx-row:first-child>td
 {
-  background-color: #e5e5e5;
+  background-color: rgba(0,0,0,0);
 }
 .dx-datagrid-headers .dx-datagrid-table .dx-row>td
 {

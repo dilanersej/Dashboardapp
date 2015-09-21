@@ -1,5 +1,10 @@
 <div data-options="dxView : { name: 'graph', title: 'graph' } " >
-    <div data-options="dxContent : { targetPlaceholder: 'content' } ">
-        <div id="chart"></div>
+    <div class="background" data-options="dxContent : { targetPlaceholder: 'content' } ">
+        <div class="transparent" data-bind="dxScrollView: { }">
+            <div align="center">
+                <h1>Dashboard</h1>
+                <div class="content"></div>
+            </div>
+        </div>
     </div>
 </div>
