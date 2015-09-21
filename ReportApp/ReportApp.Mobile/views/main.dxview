@@ -1,0 +1,5 @@
+<div data-options="dxView : { name: 'main', title: 'main' } " >
+    <div  data-options="dxContent : { targetPlaceholder: 'content' } " >
+        <div class="dashBoardList transparent" data-bind="dxList: { dataSource: dataSource }">
+        </div>
+</div>

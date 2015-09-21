@@ -26,6 +26,20 @@ namespace MobileReportService
           }
         }
 
+        public List<string> GetAllXMLName()
+        {
+            var nameList = new List<string>();
+            using ( var db = new ReportEntities())
+            {
+                var dbList = db.Catalog.Where(x => x.Path.Contains("/Dashboard/")).Select(x => x.Name).ToList();
+                foreach(var item in dbList)
+                {
+                    nameList.Add(item);
+                }
+                return nameList;
+            }
+        }
+
 
         public List<Dictionary<string, object>> GetData(DataModel model)
         {
