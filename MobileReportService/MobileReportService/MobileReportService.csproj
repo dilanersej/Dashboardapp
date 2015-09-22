@@ -64,9 +64,28 @@
     </Compile>
     <Compile Include="ConnectionStringBuilder.cs" />
     <Compile Include="IService.cs" />
+    <Compile Include="Login.cs">
+      <DependentUpon>ReportAppLoginModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\ConnectionStringDTO.cs" />
     <Compile Include="Models\DataModel.cs" />
+    <Compile Include="Models\LoginDTO.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReportAppLoginModel.Context.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ReportAppLoginModel.Context.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ReportAppLoginModel.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ReportAppLoginModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ReportAppLoginModel.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ReportAppLoginModel.edmx</DependentUpon>
+    </Compile>
     <Compile Include="Report_DB.Context.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -93,6 +112,23 @@
       <Generator>EntityModelCodeGenerator</Generator>
       <LastGenOutput>Report_DB.Designer.cs</LastGenOutput>
     </EntityDeploy>
+    <EntityDeploy Include="ReportAppLoginModel.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>ReportAppLoginModel.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+    <None Include="ReportAppLoginModel.Context.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>ReportAppLoginModel.edmx</DependentUpon>
+      <LastGenOutput>ReportAppLoginModel.Context.cs</LastGenOutput>
+    </None>
+    <None Include="ReportAppLoginModel.edmx.diagram">
+      <DependentUpon>ReportAppLoginModel.edmx</DependentUpon>
+    </None>
+    <None Include="ReportAppLoginModel.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>ReportAppLoginModel.edmx</DependentUpon>
+      <LastGenOutput>ReportAppLoginModel.cs</LastGenOutput>
+    </None>
     <None Include="Report_DB.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <DependentUpon>Report_DB.edmx</DependentUpon>

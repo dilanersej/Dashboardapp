@@ -20,6 +20,9 @@
     <OutputPath>bin\Release\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="css\style.css">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="index.css" />
     <Content Include="cordova.js" />
     <Content Include="index.html">
@@ -29,6 +32,18 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="views\graph.js">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="views\Login\login-new.dxview">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="views\Login\login-new.js">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="views\Login\login.dxview">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="views\Login\login.js">
       <SubType>Content</SubType>
     </Content>
     <Content Include="views\main.dxview">
@@ -78,6 +93,7 @@
     <Folder Include="layouts\SlideOut\" />
     <Folder Include="layouts\Split\" />
     <Folder Include="views\" />
+    <Folder Include="views\Login\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ReportApp.Shared\ReportApp.Shared.dxjsproj">

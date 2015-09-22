@@ -2,14 +2,14 @@
   <publishTarget publishUrl="http://localhost:7741/">
     <file relUrl="bin/Newtonsoft.Json.dll" publishTime="09/16/2015 10:54:57" />
     <file relUrl="bin/EntityFramework.SqlServer.xml" publishTime="09/09/2015 14:52:43" />
-    <file relUrl="bin/MobileReportService.pdb" publishTime="09/21/2015 12:05:22" />
-    <file relUrl="bin/MobileReportService.dll" publishTime="09/21/2015 12:05:22" />
-    <file relUrl="MobileReportService.Service.svc" publishTime="09/21/2015 12:05:22" />
-    <file relUrl="Web.config" publishTime="09/21/2015 11:56:12" />
+    <file relUrl="bin/MobileReportService.pdb" publishTime="09/22/2015 10:11:42" />
+    <file relUrl="bin/MobileReportService.dll" publishTime="09/22/2015 10:11:42" />
+    <file relUrl="MobileReportService.Service.svc" publishTime="09/22/2015 10:11:44" />
     <file relUrl="bin/Newtonsoft.Json.xml" publishTime="09/16/2015 10:54:57" />
-    <file relUrl="bin/EntityFramework.SqlServer.dll" publishTime="09/09/2015 14:52:43" />
+    <file relUrl="Web.config" publishTime="09/22/2015 10:10:47" />
     <file relUrl="bin/EntityFramework.dll" publishTime="09/09/2015 14:52:43" />
     <file relUrl="bin/EntityFramework.xml" publishTime="09/09/2015 14:52:43" />
-    <file relUrl="bin/MobileReportService.dll.config" publishTime="09/21/2015 11:56:12" />
+    <file relUrl="bin/MobileReportService.dll.config" publishTime="09/22/2015 10:10:47" />
+    <file relUrl="bin/EntityFramework.SqlServer.dll" publishTime="09/09/2015 14:52:43" />
   </publishTarget>
 </publishData>
