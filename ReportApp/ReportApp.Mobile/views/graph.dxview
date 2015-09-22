@@ -2,7 +2,7 @@
     <div class="background" data-options="dxContent : { targetPlaceholder: 'content' } ">
         <div class="transparent" data-bind="dxScrollView: { }">
             <div align="center">
-                <h1>Dashboard</h1>
+                <h1 data-bind="text: headline"></h1>
                 <div class="content"></div>
             </div>
         </div>
