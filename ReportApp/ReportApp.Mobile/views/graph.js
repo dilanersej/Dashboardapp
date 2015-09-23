@@ -143,7 +143,7 @@
                 //    break;
                         //TREE VIEW
                         case 'TreeView':
-                            CreateTreeView(xmlType);
+                            CreateTreeView(xmlType, dataSource);
                             break;
                 //GRID
             case 'Grid':
@@ -388,28 +388,39 @@
 
     ////CREATE TREE VIEW
     function CreateTreeView(xmlType, jsonArray) {
-        var treeViewData = [
-            { id: 1, parentId: 0, text: "Animals" },
-            { id: 2, parentId: 1, text: "Cat" },
-            { id: 3, parentId: 1, text: "Dog" },
-            { id: 4, parentId: 1, text: "Cow" },
-            { id: 5, parentId: 2, text: "Abyssinian" },
-            { id: 6, parentId: 2, text: "Aegean cat" },
-            { id: 7, parentId: 2, text: "Australian Mist" },
-            { id: 8, parentId: 3, text: "Affenpinscher" },
-            { id: 9, parentId: 3, text: "Afghan Hound" },
-            { id: 10, parentId: 3, text: "Airedale Terrier" },
-            { id: 11, parentId: 3, text: "Akita Inu" },
-            { id: 12, parentId: 0, text: "Birds" },
-            { id: 13, parentId: 12, text: "Akekee" },
-            { id: 14, parentId: 12, text: "Arizona Woodpecker" },
-            { id: 15, parentId: 12, text: "Black-chinned Sparrow" }
-        ];
+        for (k = 0; k < jsonArray.length; k++) {
+            var jsonItem = jsonArray[k];
+            var value = jsonItem[xmlType.getElementsByTagName('DataItems')[0].lastChild.getAttribute('DataMember')];
+            //var dataItems = xmlType.getElementsByTagName('DataItems')[0].lastChild.getAttribute('DataMember');
 
-        $('<div class="content-style treeview">').appendTo('.content').dxTreeView({
-            dataSource: treeViewData,
-            dataStructure: 'plain'
-        })
+            for (var i = 0; i < 2; i++) {
+                var dataItem = value[i].firstChild.getAttribute;
+            }
+
+            //var treeViewData = [
+            //    { id: 1, parentId: 0, text: "Animals" },
+            //    { id: 2, parentId: 1, text: "Cat" },
+            //    { id: 3, parentId: 1, text: "Dog" },
+            //    { id: 4, parentId: 1, text: "Cow" },
+            //    { id: 5, parentId: 2, text: "Abyssinian" },
+            //    { id: 6, parentId: 2, text: "Aegean cat" },
+            //    { id: 7, parentId: 2, text: "Australian Mist" },
+            //    { id: 8, parentId: 3, text: "Affenpinscher" },
+            //    { id: 9, parentId: 3, text: "Afghan Hound" },
+            //    { id: 10, parentId: 3, text: "Airedale Terrier" },
+            //    { id: 11, parentId: 3, text: "Akita Inu" },
+            //    { id: 12, parentId: 0, text: "Birds" },
+            //    { id: 13, parentId: 12, text: "Akekee" },
+            //    { id: 14, parentId: 12, text: "Arizona Woodpecker" },
+            //    { id: 15, parentId: 12, text: "Black-chinned Sparrow" }
+            //];
+
+            $('<div class="content-style treeview">').appendTo('.content').dxTreeView({
+                dataSource: jsonArray,
+                //xmlDoc.getElementByTagName("DataMember"),
+                dataStructure: 'plain'
+            })
+        }
         
     }
 
@@ -432,6 +443,7 @@
                 rowElement.css('background', '#282828');
                 rowElement.css('color', '#a1a1a1');
             }
+
         })
     }
 
