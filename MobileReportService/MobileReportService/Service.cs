@@ -58,7 +58,7 @@ namespace MobileReportService
                     xmlList.Add(new XmlFileDTO()
                     {
                         ItemID = item.ItemID,
-                        Name = item.Name
+                        Name = item.Name.Substring(0, item.Name.Length-4)
                     });
                 }
                 return xmlList;
@@ -130,7 +130,7 @@ namespace MobileReportService
                 }
                 return (int)codes.success;
             } catch(DbUpdateException e){
-                return (int)codes.user_exists;
+                return -2;
             } catch(Exception e){
                 return (int)codes.fail;
             }
@@ -163,7 +163,7 @@ namespace MobileReportService
                     };
                 }
             } catch(Exception e){
-                return new LoginDTO() { Code = -1 };
+                return new LoginDTO() { Code = (int)codes.fail };
             }
         }
 

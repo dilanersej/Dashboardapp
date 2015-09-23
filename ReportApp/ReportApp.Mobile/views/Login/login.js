@@ -1,7 +1,7 @@
 ﻿ReportApp.login = function (params) {
 
-    //var baseAddress = 'http://172.20.40.125:7741/MobileReportService.Service.svc/';
-    var baseAddress = 'http://localhost:8733/Design_Time_Addresses/MobileReportServiceDebugMode/Service/';
+    var baseAddress = 'http://172.20.40.125:7741/MobileReportService.Service.svc/';
+    //var baseAddress = 'http://localhost:8733/Design_Time_Addresses/MobileReportServiceDebugMode/Service/';
 
     window.loggedInUser = null;
     ReportApp.config.navigation[1].visible(false);

@@ -35,11 +35,17 @@
             } else if (parameters[k].getAttribute('Name') === 'database') {
                 database = parameters[k].getAttribute('Value');
             } else if (parameters[k].getAttribute('Name') === 'userid') {
-                userId = parameters[k].getAttribute('Value');
+                if(parameters[k].getAttribute('Value') != ""){
+                    userId = parameters[k].getAttribute('Value');
+                }
             } else if (parameters[k].getAttribute('Name') === 'password') {
-                password = parameters[k].getAttribute('Value');
+                if (parameters[k].getAttribute('Value') != "") {
+                    password = parameters[k].getAttribute('Value');
+                }
             }
         }
+
+        console.log("LOGIN: " + userId + " " + password);
 
         if(userId === undefined && password === undefined){
             ObtainLoginCredentials();
@@ -72,13 +78,12 @@
                 }
                 x = xmlDoc.getElementsByTagName('Items')[0].childNodes;
                 for (i = 0; i < x.length; i++) {
-                    console.log(i);
                     CheckType(x[i], tmpArray);
                 }
             })
             .error(function (err) {
                 DevExpress.ui.notify('Something went wrong, please try again. CODE: ' + err.statusCode, 'error', 3000);
-                console.log(err);
+                console.log(err.message);
             })
         }
     }
@@ -98,9 +103,17 @@
         for (h = 0; h < tables.length; h++){
             for (j = 0; j < tables[h].childNodes.length; j++) {
                 if (h === 0 && j === 0) {
-                    query += " [" + tables[h].getAttribute('Name') + "].[" + tables[h].childNodes[j].getAttribute('Name') + "]";
+                    if(tables[h].childNodes[j].getAttribute('Alias') != undefined){
+                        query += " [" + tables[h].getAttribute('Name') + "].[" + tables[h].childNodes[j].getAttribute('Name') + "] AS '" + tables[h].childNodes[j].getAttribute('Alias') + "'";
+                    } else {
+                        query += " [" + tables[h].getAttribute('Name') + "].[" + tables[h].childNodes[j].getAttribute('Name') + "]";
+                    }
                 } else {
-                    query += ", [" + tables[h].getAttribute('Name') + "].[" + tables[h].childNodes[j].getAttribute('Name') + "]";
+                    if (tables[h].childNodes[j].getAttribute('Alias') != undefined) {
+                        query += ", [" + tables[h].getAttribute('Name') + "].[" + tables[h].childNodes[j].getAttribute('Name') + "] AS '" + tables[h].childNodes[j].getAttribute('Alias') + "'";
+                    } else {
+                        query += ", [" + tables[h].getAttribute('Name') + "].[" + tables[h].childNodes[j].getAttribute('Name') + "]";
+                    }
                 }
             }
         }
@@ -116,28 +129,35 @@
             query += " FROM [" + tableList[tableList.length - 1] + "]";
         }
 
+        var used = {};
+
         for (k = 0; k < relations.length; k++){
             var keyColumns = relations[k].childNodes;
             var count1 = 0;
-
-            for (j = 0; j < relations.length; j++) {
-                if(relations[k].getAttribute('Nested') === relations[j].getAttribute('Nested') && count1 === 0){
-                    query += " JOIN [" + relations[k].getAttribute('Nested') + "] ON [" + relations[k].getAttribute('Parent') + "].[" + relations[j].firstChild.getAttribute('Parent') + "] = [" + relations[k].getAttribute('Nested') + "].[" + relations[j].firstChild.getAttribute('Nested') + "]";
+            if(!used[k]){
+                if (keyColumns.length != 1) {
+                    for (j = 0; j < keyColumns.length; j++) {
+                        if (count1 === 0) {
+                            query += " JOIN [" + relations[k].getAttribute('Nested') + "] ON [" + relations[k].getAttribute('Parent') + "].[" + keyColumns[j].getAttribute('Parent') + "] = [" + relations[k].getAttribute('Nested') + "].[" + keyColumns[j].getAttribute('Nested') + "]";
+                            count1 = 1;
+                        } else {
+                            query += " AND  [" + relations[k].getAttribute('Parent') + "].[" + keyColumns[j].getAttribute('Parent') + "] = [" + relations[k].getAttribute('Nested') + "].[" + keyColumns[j].getAttribute('Nested') + "]";
+                        }
+                    }
+                } else {
+                    query += " JOIN [" + relations[k].getAttribute('Nested') + "] ON [" + relations[k].getAttribute('Parent') + "].[" + keyColumns[0].getAttribute('Parent') + "] = [" + relations[k].getAttribute('Nested') + "].[" + keyColumns[0].getAttribute('Nested') + "]";
                     count1 = 1;
-                } else if (relations[k].getAttribute('Nested') === relations[j].getAttribute('Nested')) {
-                    query += " AND  [" + relations[k].getAttribute('Parent') + "].[" + relations[j].firstChild.getAttribute('Parent') + "] = [" + relations[k].getAttribute('Nested') + "].[" + relations[j].firstChild.getAttribute('Nested') + "]";
                 }
-            }
 
-            if(keyColumns.length != 1){
-                for (j = 1; j < keyColumns.length; j++) {
-                    if (count1 === 0) {
-                        query += " JOIN [" + relations[k].getAttribute('Nested') + "] ON [" + relations[k].getAttribute('Parent') + "].[" + keyColumns[j].getAttribute('Parent') + "] = [" + relations[k].getAttribute('Nested') + "].[" + keyColumns[j].getAttribute('Nested') + "]";
-                        count1 = 1;
-                    } else {
-                        query += " AND  [" + relations[k].getAttribute('Parent') + "].[" + keyColumns[j].getAttribute('Parent') + "] = [" + relations[k].getAttribute('Nested') + "].[" + keyColumns[j].getAttribute('Nested') + "]";
+                for (l = 0; l < relations.length; l++) {
+                    if (relations[k].getAttribute('Nested') === relations[l].getAttribute('Nested') && k != l) {
+                        if (!used[l]) {
+                            query += " AND  [" + relations[l].getAttribute('Parent') + "].[" + relations[l].firstChild.getAttribute('Parent') + "] = [" + relations[l].getAttribute('Nested') + "].[" + relations[l].firstChild.getAttribute('Nested') + "]";
+                            used[l] = 1;
+                        }
                     }
                 }
+                used[k] = 1;
             }
         }
 
@@ -167,19 +187,19 @@
             case 'ComboBox':
                 CreateComboBox(xmlType, dataSource);
                 break;
-                //        //RANGE FILTER
-                //        case 'RangeFilter':
-                //            CreateRangeFilter(xmlType);
-                //            break;
-                //        //LIST BOX
-                //case 'ListBox':
-                //    CreateListBox(xmlType. dataSource);
-                //    break;
-                        //TREE VIEW
-                        case 'TreeView':
-                            CreateTreeView(xmlType, dataSource);
-                            break;
-                //GRID
+            //RANGE FILTER
+            //case 'RangeFilter':
+            //  CreateRangeFilter(xmlType);
+            //  break;
+            // LIST BOX
+            //case 'ListBox':
+            //    CreateListBox(xmlType. dataSource);
+            //    break;
+            //TREE VIEW
+            //case 'TreeView':
+            //    CreateTreeView(xmlType, dataSource);
+            //    break;
+            //GRID
             case 'Grid':
                 CreateGrid(xmlType, dataSource);
                 break;
@@ -281,7 +301,7 @@
                 point.isVisible() ? point.hide() : point.show();
             },
             size: {
-                height: 525
+                height: 300
             }
         });
     }
@@ -380,14 +400,37 @@
 
     //CREATE COMBO BOX
     function CreateComboBox(xmlType, jsonArray) {
-        var display = xmlType.childNodes[1].firstChild.getAttribute('DataMember');
-        var value = xmlType.childNodes[1].lastChild.getAttribute('DataMember');
+        console.log(xmlType);
+        try{
+            var dataItems = xmlType.getElementsByTagName('DataItems')[0].childNodes;
+            var filterDimensions = xmlType.getElementsByTagName('FilterDimensions')[0].childNodes;
+            var displayExpr = 'display';
+            var value = "";
+            var comboArray = $.extend(true, [], jsonArray)
+            for (l = 0; l < comboArray.length; l++) {
+                comboArray[l].display = "";
+                for (k = 0; k < filterDimensions.length; k++) {
+                    for (j = 0; j < dataItems.length; j++) {
+                        if (filterDimensions[k].getAttribute('UniqueName') === dataItems[j].getAttribute('UniqueName')) {
+                            comboArray[l].display += comboArray[l][dataItems[j].getAttribute('DataMember')] + ", ";
+                            if (k === 0) {
+                                value = comboArray[l][dataItems[j].getAttribute('DataMember')];
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
 
-        $('<div class="content-style combo-box">').appendTo('.content').dxSelectBox({
-            dataSource: jsonArray,
-            displayExpr: display,
-            valueExpr: value
-        });
+            $('<div class="content-style combo-box">').appendTo('.content').dxSelectBox({
+                dataSource: comboArray,
+                displayExpr: displayExpr,
+                valueExpr: value
+            });
+        } catch (err){
+
+        }
+       
     }
 
     ////CREATE RANGE FILTER
@@ -421,15 +464,15 @@
 
 
     ////CREATE TREE VIEW
-    function CreateTreeView(xmlType, jsonArray) {
-        for (k = 0; k < jsonArray.length; k++) {
-            var jsonItem = jsonArray[k];
-            var value = jsonItem[xmlType.getElementsByTagName('DataItems')[0].lastChild.getAttribute('DataMember')];
+    //function CreateTreeView(xmlType, jsonArray) {
+        //for (k = 0; k < jsonArray.length; k++) {
+        //    var jsonItem = jsonArray[k];
+        //    var value = jsonItem[xmlType.getElementsByTagName('DataItems')[0].lastChild.getAttribute('DataMember')];
             //var dataItems = xmlType.getElementsByTagName('DataItems')[0].lastChild.getAttribute('DataMember');
 
-            for (var i = 0; i < 2; i++) {
-                var dataItem = value[i].firstChild.getAttribute;
-            }
+            //for (var i = 0; i < 2; i++) {
+            //    var dataItem = value[i].firstChild.getAttribute;
+            //}
 
             //var treeViewData = [
             //    { id: 1, parentId: 0, text: "Animals" },
@@ -449,14 +492,14 @@
             //    { id: 15, parentId: 12, text: "Black-chinned Sparrow" }
             //];
 
-            $('<div class="content-style treeview">').appendTo('.content').dxTreeView({
-                dataSource: jsonArray,
+            //$('<div class="content-style treeview">').appendTo('.content').dxTreeView({
+            //    dataSource: jsonArray,
                 //xmlDoc.getElementByTagName("DataMember"),
-                dataStructure: 'plain'
-            })
-        }
+        //        dataStructure: 'plain'
+        //    })
+        //}
         
-    }
+    //}
 
     //CREATE GRID
     function CreateGrid(xmlType, jsonArray) {
@@ -464,7 +507,14 @@
         var xmlColumns = xmlType.getElementsByTagName('GridColumns')[0].childNodes;
         var xmlDataItems = xmlType.firstChild.childNodes;
         for (j = 0; j < xmlDataItems.length; j++){
-            columnsList.push(xmlDataItems[j].getAttribute('DataMember'));
+            if(xmlDataItems[j].nodeName === 'Dimension'){
+                columnsList.push(xmlDataItems[j].getAttribute('DataMember'));
+            }
+        }
+        for (j = 0; j < xmlDataItems.length; j++) {
+            if (xmlDataItems[j].nodeName != 'Dimension') {
+                columnsList.push(xmlDataItems[j].getAttribute('DataMember'));
+            }
         }
         
         $('<div class="content-style grid">').appendTo('.content').dxDataGrid({
