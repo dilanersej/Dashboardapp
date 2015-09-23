@@ -119,30 +119,23 @@
         for (k = 0; k < relations.length; k++){
             var keyColumns = relations[k].childNodes;
             var count1 = 0;
-            console.log("FOR 1");
 
             for (j = 0; j < relations.length; j++) {
-                console.log('FOR 2');
                 if(relations[k].getAttribute('Nested') === relations[j].getAttribute('Nested') && count1 === 0){
                     query += " JOIN [" + relations[k].getAttribute('Nested') + "] ON [" + relations[k].getAttribute('Parent') + "].[" + relations[j].firstChild.getAttribute('Parent') + "] = [" + relations[k].getAttribute('Nested') + "].[" + relations[j].firstChild.getAttribute('Nested') + "]";
                     count1 = 1;
-                    console.log('JOIN [' + relations[k].getAttribute("Nested") + '] ON [' + relations[k].getAttribute('Parent') + ']');
                 } else if (relations[k].getAttribute('Nested') === relations[j].getAttribute('Nested')) {
                     query += " AND  [" + relations[k].getAttribute('Parent') + "].[" + relations[j].firstChild.getAttribute('Parent') + "] = [" + relations[k].getAttribute('Nested') + "].[" + relations[j].firstChild.getAttribute('Nested') + "]";
-                    console.log('AND');
                 }
             }
 
             if(keyColumns.length != 1){
                 for (j = 1; j < keyColumns.length; j++) {
-                    console.log('FOR 3');
                     if (count1 === 0) {
                         query += " JOIN [" + relations[k].getAttribute('Nested') + "] ON [" + relations[k].getAttribute('Parent') + "].[" + keyColumns[j].getAttribute('Parent') + "] = [" + relations[k].getAttribute('Nested') + "].[" + keyColumns[j].getAttribute('Nested') + "]";
                         count1 = 1;
-                        console.log('JOIN');
                     } else {
                         query += " AND  [" + relations[k].getAttribute('Parent') + "].[" + keyColumns[j].getAttribute('Parent') + "] = [" + relations[k].getAttribute('Nested') + "].[" + keyColumns[j].getAttribute('Nested') + "]";
-                        console.log('AND');
                     }
                 }
             }
