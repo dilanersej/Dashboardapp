@@ -21,12 +21,12 @@ namespace MobileReportService
         void GetOptions();
 
         [OperationContract]
-        [WebInvoke(Method = "GET", ResponseFormat=WebMessageFormat.Xml, UriTemplate="/dashboard/{name}")]
-        XElement GetDashboardByName(string name);
+        [WebInvoke(Method = "GET", ResponseFormat=WebMessageFormat.Xml, UriTemplate="/dashboard/{itemId}")]
+        XElement GetDashboardByName(string itemId);
 
         [OperationContract]
         [WebInvoke(Method = "GET", ResponseFormat = WebMessageFormat.Json, UriTemplate = "/dashboards")]
-        List<string> GetAllXMLName();
+        List<XmlFileDTO> GetAllXMLName();
 
 
         [OperationContract]
