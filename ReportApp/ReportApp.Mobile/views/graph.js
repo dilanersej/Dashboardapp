@@ -1,20 +1,18 @@
 ﻿ReportApp.graph = function (params) {
 
-    //var baseAddress = 'http://172.20.40.125:7741/MobileReportService.Service.svc/';
-    var baseAddress = 'http://localhost:8733/Design_Time_Addresses/MobileReportServiceDebugMode/Service/';
+    var baseAddress = 'http://172.20.40.125:7741/MobileReportService.Service.svc/';
+    //var baseAddress = 'http://localhost:8733/Design_Time_Addresses/MobileReportServiceDebugMode/Service/';
+
+    var xml;
 
     //GET DASHBOARD
     var GetDashboard = $.ajax({
-        url: baseAddress + 'dashboard/' + params.id,
+        url: baseAddress + 'dashboard/' + params.id.ItemID,
         type: 'GET',
         contentType: 'text/xml',
         success: function (xmlObject) {
-
-            console.log(xmlObject)
-            console.log(xmlObject.childNodes)
-
+            xml = xmlObject;
             var dataSource = GetData(xmlObject);
-            
         },
         error: function (err) {
             DevExpress.ui.notify('Something went wrong, please try again. CODE: ' + err.statusCode, 'error', 3000);
@@ -23,13 +21,14 @@
     })
 
     //GET DATA
-    function GetData(xmlDoc) {
+    function GetData(xmlDoc, userIdInput, passwordInput) {
+        console.log(userIdInput + " " + passwordInput);
         var query = BuildQuery(xmlDoc);
         var parameters = xmlDoc.getElementsByTagName('Parameters')[0].childNodes;
         var server = "";
         var database = "";
-        var userId = "";
-        var password = "";
+        var userId = userIdInput;
+        var password = passwordInput;
         for (k = 0; k < parameters.length; k++){
             if(parameters[k].getAttribute('Name') === 'server'){
                 server = parameters[k].getAttribute('Value');
@@ -41,41 +40,51 @@
                 password = parameters[k].getAttribute('Value');
             }
         }
-        var data = JSON.stringify({
-            'CsDTO': {
-                'UserID': userId,
-                'Password': password,
-                'Server': server,
-                'Database': database
-            },
-            'Query': query
-        })
-        $.ajax({
-            url: baseAddress + 'data',
-            type: 'POST',
-            data: data,
-            contentType: "application/json; charset=utf-8"
-        })
-        .done(function (json) {
-            var tmpArray = [];
-            var jsonArray = json;
-            for (i = 0; i < jsonArray.length; i++) {
-                var item = {};
-                for (j = 0; j < jsonArray[i].length; j++) {
-                    item[jsonArray[i][j].Key] = jsonArray[i][j].Value
+
+        if(userId === undefined && password === undefined){
+            ObtainLoginCredentials();
+        } else {
+
+            var data = JSON.stringify({
+                'CsDTO': {
+                    'UserID': userId,
+                    'Password': password,
+                    'Server': server,
+                    'Database': database
+                },
+                'Query': query
+            })
+            $.ajax({
+                url: baseAddress + 'data',
+                type: 'POST',
+                data: data,
+                contentType: "application/json; charset=utf-8"
+            })
+            .done(function (json) {
+                var tmpArray = [];
+                var jsonArray = json;
+                for (i = 0; i < jsonArray.length; i++) {
+                    var item = {};
+                    for (j = 0; j < jsonArray[i].length; j++) {
+                        item[jsonArray[i][j].Key] = jsonArray[i][j].Value
+                    }
+                    tmpArray.push(item);
                 }
-                tmpArray.push(item);
-            }
-            x = xmlDoc.getElementsByTagName('Items')[0].childNodes;
-            for (i = 0; i < x.length; i++) {
-                console.log(i);
-                CheckType(x[i], tmpArray);
-            }
-        })
-        .error(function (err) {
-            DevExpress.ui.notify('Something went wrong, please try again. CODE: ' + err.statusCode, 'error', 3000);
-            console.log(err);
-        })
+                x = xmlDoc.getElementsByTagName('Items')[0].childNodes;
+                for (i = 0; i < x.length; i++) {
+                    console.log(i);
+                    CheckType(x[i], tmpArray);
+                }
+            })
+            .error(function (err) {
+                DevExpress.ui.notify('Something went wrong, please try again. CODE: ' + err.statusCode, 'error', 3000);
+                console.log(err);
+            })
+        }
+    }
+
+    function ObtainLoginCredentials() {
+        viewModel.popUpVisible(true);
     }
 
     //BUILD QUERY
@@ -85,13 +94,13 @@
         var query = "SELECT";
         var relations = [];
         var tables = xmlDoc.getElementsByTagName('Table');
-
+        console.log(tables[0].childNodes);
         for (h = 0; h < tables.length; h++){
             for (j = 0; j < tables[h].childNodes.length; j++) {
                 if (h === 0 && j === 0) {
-                    query += " " + tables[h].getAttribute('Name') + "." + tables[h].childNodes[j].getAttribute('Name')
+                    query += " [" + tables[h].getAttribute('Name') + "].[" + tables[h].childNodes[j].getAttribute('Name') + "]";
                 } else {
-                    query += ", " + tables[h].getAttribute('Name') + "." + tables[h].childNodes[j].getAttribute('Name');
+                    query += ", [" + tables[h].getAttribute('Name') + "].[" + tables[h].childNodes[j].getAttribute('Name') + "]";
                 }
             }
         }
@@ -100,15 +109,47 @@
             tableList[k] = tables[k].getAttribute('Name');
         }
 
-        if (xmlDoc.getElementsByTagName('Relation') != null) {
-            relations = xmlDoc.getElementsByTagName('Relation');
+        relations = xmlDoc.getElementsByTagName('Relation');
+        if(relations.length != 0){
+            query += " FROM [" + relations[0].getAttribute('Parent') + "]";
+        } else {
+            query += " FROM [" + tableList[tableList.length - 1] + "]";
         }
 
-        query += " FROM " + tableList[tableList.length-1];
+        for (k = 0; k < relations.length; k++){
+            var keyColumns = relations[k].childNodes;
+            var count1 = 0;
+            console.log("FOR 1");
 
-        for (k = 0; k < relations.length; k++) {
-            query += " JOIN " + relations[k].getAttribute('Parent') + " ON " + relations[k].getAttribute('Nested') + "." + relations[k].firstChild.getAttribute('Nested') + " = " + relations[k].getAttribute('Parent') + "." + relations[k].firstChild.getAttribute('Parent');
+            for (j = 0; j < relations.length; j++) {
+                console.log('FOR 2');
+                if(relations[k].getAttribute('Nested') === relations[j].getAttribute('Nested') && count1 === 0){
+                    query += " JOIN [" + relations[k].getAttribute('Nested') + "] ON [" + relations[k].getAttribute('Parent') + "].[" + relations[j].firstChild.getAttribute('Parent') + "] = [" + relations[k].getAttribute('Nested') + "].[" + relations[j].firstChild.getAttribute('Nested') + "]";
+                    count1 = 1;
+                    console.log('JOIN [' + relations[k].getAttribute("Nested") + '] ON [' + relations[k].getAttribute('Parent') + ']');
+                } else if (relations[k].getAttribute('Nested') === relations[j].getAttribute('Nested')) {
+                    query += " AND  [" + relations[k].getAttribute('Parent') + "].[" + relations[j].firstChild.getAttribute('Parent') + "] = [" + relations[k].getAttribute('Nested') + "].[" + relations[j].firstChild.getAttribute('Nested') + "]";
+                    console.log('AND');
+                }
+            }
+
+            if(keyColumns.length != 1){
+                for (j = 1; j < keyColumns.length; j++) {
+                    console.log('FOR 3');
+                    if (count1 === 0) {
+                        query += " JOIN [" + relations[k].getAttribute('Nested') + "] ON [" + relations[k].getAttribute('Parent') + "].[" + keyColumns[j].getAttribute('Parent') + "] = [" + relations[k].getAttribute('Nested') + "].[" + keyColumns[j].getAttribute('Nested') + "]";
+                        count1 = 1;
+                        console.log('JOIN');
+                    } else {
+                        query += " AND  [" + relations[k].getAttribute('Parent') + "].[" + keyColumns[j].getAttribute('Parent') + "] = [" + relations[k].getAttribute('Nested') + "].[" + keyColumns[j].getAttribute('Nested') + "]";
+                        console.log('AND');
+                    }
+                }
+            }
         }
+
+        console.log(xml);
+        console.log(query);
 
         return query;
     }
@@ -247,7 +288,7 @@
                 point.isVisible() ? point.hide() : point.show();
             },
             size: {
-                height: 300
+                height: 525
             }
         });
     }
@@ -436,7 +477,16 @@
     }
 
     var viewModel = {
-        headline: params.id
+        headline: params.id.Name,
+        xmlDoc: ko.observable(""),
+        popUpVisible: ko.observable(false),
+        popupClicked: function (params) {
+            var result = params.validationGroup.validate();
+            if (result.isValid) {
+                viewModel.popUpVisible(false);
+                GetData(xml, $('#userId').dxTextBox('option', 'value'), $('#password').dxTextBox('option', 'value'));
+            }
+        }
     };
 
     return viewModel;

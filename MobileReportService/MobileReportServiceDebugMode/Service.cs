@@ -27,11 +27,11 @@ namespace MobileReportServiceDebugMode
         /// </summary>
         /// <param name="name"></param>
         /// <returns>XElement (XML)</returns>
-        public XElement GetDashboardByName(string name)
+        public XElement GetDashboardByName(string itemId)
         {
             using (var db = new ReportEntities())
             {
-                XElement xelement = XElement.Parse(db.Database.SqlQuery<string>("SELECT CAST(CAST(Content AS VARBINARY(MAX)) AS XML) AS DashboardXML FROM ReportServer$SRVSQL2012.dbo.Catalog WHERE Name = '" + name + ".xml'").FirstOrDefault<string>());
+                XElement xelement = XElement.Parse(db.Database.SqlQuery<string>("SELECT CAST(CAST(Content AS VARBINARY(MAX)) AS XML) AS DashboardXML FROM ReportServer$SRVSQL2012.dbo.Catalog WHERE ItemID = '" + itemId + "'").FirstOrDefault<string>());
                 return xelement;
             }
         }
@@ -40,17 +40,22 @@ namespace MobileReportServiceDebugMode
         /// Return a list of with all the names of all XML files on the server
         /// </summary>
         /// <returns>List of names (string)</returns>
-        public List<string> GetAllXMLName()
+        public List<XmlFileDTO> GetAllXMLName()
         {
-            var nameList = new List<string>();
+            var xmlList = new List<XmlFileDTO>();
             using (var db = new ReportEntities())
             {
-                var dbList = db.Catalog.Where(x => x.Path.Contains("/Dashboard/") && x.Path.Contains(".xml")).Select(x => x.Name).ToList();
+                var dbList = db.Catalog.Where(x => x.Path.Contains("/Dashboard/") && x.Path.Contains(".xml")).Select(x => new { x.ItemID, x.Name}).ToList();
                 foreach (var item in dbList)
                 {
-                    nameList.Add(item.Substring(0, item.Length - 4));
+
+                    xmlList.Add(new XmlFileDTO()
+                    {
+                        ItemID = item.ItemID,
+                        Name = item.Name
+                    });
                 }
-                return nameList;
+                return xmlList;
             }
         }
 

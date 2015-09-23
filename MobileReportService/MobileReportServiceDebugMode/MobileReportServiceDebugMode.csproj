@@ -69,6 +69,7 @@
     <Compile Include="Models\ConnectionStringDTO.cs" />
     <Compile Include="Models\DataModel.cs" />
     <Compile Include="Models\LoginDTO.cs" />
+    <Compile Include="Models\XmlFileDTO.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReportAppLoginModel.Context.cs">
       <AutoGen>True</AutoGen>
