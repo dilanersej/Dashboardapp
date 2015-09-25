@@ -4,6 +4,7 @@
     //var baseAddress = 'http://localhost:8733/Design_Time_Addresses/MobileReportServiceDebugMode/Service/';
 
     var xml;
+    var dataSource;
 
     //GET DASHBOARD
     var GetDashboard = $.ajax({
@@ -12,7 +13,7 @@
         contentType: 'text/xml',
         success: function (xmlObject) {
             xml = xmlObject;
-            var dataSource = GetData(xmlObject);
+            dataSource = GetData(xmlObject);
         },
         error: function (err) {
             DevExpress.ui.notify('Something went wrong, please try again. CODE: ' + err.statusCode, 'error', 3000);
@@ -22,7 +23,6 @@
 
     //GET DATA
     function GetData(xmlDoc, userIdInput, passwordInput) {
-        console.log(userIdInput + " " + passwordInput);
         var query = BuildQuery(xmlDoc);
         var parameters = xmlDoc.getElementsByTagName('Parameters')[0].childNodes;
         var server = "";
@@ -44,8 +44,6 @@
                 }
             }
         }
-
-        console.log("LOGIN: " + userId + " " + password);
 
         if(userId === undefined && password === undefined){
             ObtainLoginCredentials();
@@ -99,7 +97,6 @@
         var query = "SELECT";
         var relations = [];
         var tables = xmlDoc.getElementsByTagName('Table');
-        console.log(tables[0].childNodes);
         for (h = 0; h < tables.length; h++){
             for (j = 0; j < tables[h].childNodes.length; j++) {
                 if (h === 0 && j === 0) {
@@ -161,7 +158,6 @@
             }
         }
 
-        console.log(xml);
         console.log(query);
 
         return query;
@@ -173,7 +169,7 @@
         switch (xmlType.nodeName) {
             //CHART
             case 'Chart':
-                CreateChart(xmlType, dataSource)
+                CreateChart(xmlType, dataSource);
                 break;
                 //PIE
             case 'Pie':
@@ -181,27 +177,10 @@
                 break;
                 //GAUGE
             case 'Gauge': 
-                CreateGauge(xmlType, dataSource)
+                CreateGauge(xmlType, dataSource);
                 break;
-                //COMBO BOX
-            case 'ComboBox':
-                CreateComboBox(xmlType, dataSource);
-                break;
-            //RANGE FILTER
-            //case 'RangeFilter':
-            //  CreateRangeFilter(xmlType);
-            //  break;
-            // LIST BOX
-            //case 'ListBox':
-            //    CreateListBox(xmlType. dataSource);
-            //    break;
-            //TREE VIEW
-            //case 'TreeView':
-            //    CreateTreeView(xmlType, dataSource);
-            //    break;
-            //GRID
-            case 'Grid':
-                CreateGrid(xmlType, dataSource);
+            case 'Card':
+                CreateCard(xmlType, dataSource);
                 break;
         }
     }
@@ -398,142 +377,75 @@
         }
     }
 
-    //CREATE COMBO BOX
-    function CreateComboBox(xmlType, jsonArray) {
-        console.log(xmlType);
-        try{
-            var dataItems = xmlType.getElementsByTagName('DataItems')[0].childNodes;
-            var filterDimensions = xmlType.getElementsByTagName('FilterDimensions')[0].childNodes;
-            var displayExpr = 'display';
-            var value = "";
-            var comboArray = $.extend(true, [], jsonArray)
-            for (l = 0; l < comboArray.length; l++) {
-                comboArray[l].display = "";
-                for (k = 0; k < filterDimensions.length; k++) {
-                    for (j = 0; j < dataItems.length; j++) {
-                        if (filterDimensions[k].getAttribute('UniqueName') === dataItems[j].getAttribute('UniqueName')) {
-                            comboArray[l].display += comboArray[l][dataItems[j].getAttribute('DataMember')] + ", ";
-                            if (k === 0) {
-                                value = comboArray[l][dataItems[j].getAttribute('DataMember')];
+    function CreateCard(xmlType, jsonArray) {
+        var dataItems = xmlType.getElementsByTagName('DataItems')[0].childNodes;
+        var cards = xmlType.getElementsByTagName('Card');
+        for (l = 0; l < cards.length; l++) {
+            var actualKey;
+            var targetKey;
+            var cardValues = xmlType.getElementsByTagName('Card')[l].childNodes;
+            var actualValue;
+            var targetValue;
+            for (k = 0; k < cardValues.length; k++){
+                if(cardValues[k].nodeName === 'ActualValue'){
+                    for (j = 0; j < dataItems.length; j++){
+                        if (cardValues[k].getAttribute('UniqueName') === dataItems[j].getAttribute('UniqueName')) {
+                            var hash = {};
+                            for (m = 0; m < jsonArray.length; m++) {
+                                if(!hash[dataItems[j].getAttribute('DataMember')]){
+                                    hash[dataItems[j].getAttribute('DataMember')] = jsonArray[m][dataItems[j].getAttribute('DataMember')];
+                                } else {
+                                    hash[dataItems[j].getAttribute('DataMember')] += jsonArray[m][dataItems[j].getAttribute('DataMember')];
+                                }
                             }
-                            break;
+                            actualKey = dataItems[j].getAttribute('DataMember');
+                            actualValue = hash[dataItems[j].getAttribute('DataMember')];
+                        }
+                    }
+                } else if (cardValues[k].nodeName === 'TargetValue') {
+                    for (j = 0; j < dataItems.length; j++) {
+                        if (cardValues[k].getAttribute('UniqueName') === dataItems[j].getAttribute('UniqueName')) {
+                            var hash = {};
+                            for (m = 0; m < jsonArray.length; m++) {
+                                if (!hash[dataItems[j].getAttribute('DataMember')]) {
+                                    hash[dataItems[j].getAttribute('DataMember')] = jsonArray[m][dataItems[j].getAttribute('DataMember')];
+                                } else {
+                                    hash[dataItems[j].getAttribute('DataMember')] += jsonArray[m][dataItems[j].getAttribute('DataMember')];
+                                }
+                            }
+                            targetKey = dataItems[j].getAttribute('DataMember');
+                            targetValue = hash[dataItems[j].getAttribute('DataMember')];
                         }
                     }
                 }
             }
 
-            $('<div class="content-style combo-box">').appendTo('.content').dxSelectBox({
-                dataSource: comboArray,
-                displayExpr: displayExpr,
-                valueExpr: value
-            });
-        } catch (err){
+            var originTarget = targetValue;
+            targetValue = actualValue - targetValue;
 
-        }
-       
-    }
+            var percentage = Math.ceil((targetValue / actualValue * 100) * 100) / 100;
 
-    ////CREATE RANGE FILTER
-    //function CreateRangeFilter(xmlType) {
-    //     $('<div class="content-style range-selector">').appendTo('.content').dxRangeSelector({
-    //        scale: {
-    //            startValue: 0,
-    //            endValue: 120,
-    //            macjorTickInterval: {}
-    //        }
-    //    })
-    //}
-
-    //CREATE LIST BOX
-    //function CreateListBox(xmlType, jsonArray) {
-    //    for (k = 0; k < jsonArray.length; k++) {
-    //        var jsonItem = jsonArray[k];
-    //        var value = jsonItem[xmlType.firstChild.lastChild.getAttribute('DataMember')];
-
-    //        $('<div class="content-style list-box">').appendTo('.content').dxList({
-    //            dataSource: jsonArray,
-    //            showSelectionControls: true,
-    //            onSelectionChanged: function (data) {
-    //                alert(data);
-    //            }
-    //        })
-    //        return jsonArray;
-    //    }
-    //}
-
-
-
-    ////CREATE TREE VIEW
-    //function CreateTreeView(xmlType, jsonArray) {
-        //for (k = 0; k < jsonArray.length; k++) {
-        //    var jsonItem = jsonArray[k];
-        //    var value = jsonItem[xmlType.getElementsByTagName('DataItems')[0].lastChild.getAttribute('DataMember')];
-            //var dataItems = xmlType.getElementsByTagName('DataItems')[0].lastChild.getAttribute('DataMember');
-
-            //for (var i = 0; i < 2; i++) {
-            //    var dataItem = value[i].firstChild.getAttribute;
-            //}
-
-            //var treeViewData = [
-            //    { id: 1, parentId: 0, text: "Animals" },
-            //    { id: 2, parentId: 1, text: "Cat" },
-            //    { id: 3, parentId: 1, text: "Dog" },
-            //    { id: 4, parentId: 1, text: "Cow" },
-            //    { id: 5, parentId: 2, text: "Abyssinian" },
-            //    { id: 6, parentId: 2, text: "Aegean cat" },
-            //    { id: 7, parentId: 2, text: "Australian Mist" },
-            //    { id: 8, parentId: 3, text: "Affenpinscher" },
-            //    { id: 9, parentId: 3, text: "Afghan Hound" },
-            //    { id: 10, parentId: 3, text: "Airedale Terrier" },
-            //    { id: 11, parentId: 3, text: "Akita Inu" },
-            //    { id: 12, parentId: 0, text: "Birds" },
-            //    { id: 13, parentId: 12, text: "Akekee" },
-            //    { id: 14, parentId: 12, text: "Arizona Woodpecker" },
-            //    { id: 15, parentId: 12, text: "Black-chinned Sparrow" }
-            //];
-
-            //$('<div class="content-style treeview">').appendTo('.content').dxTreeView({
-            //    dataSource: jsonArray,
-                //xmlDoc.getElementByTagName("DataMember"),
-        //        dataStructure: 'plain'
-        //    })
-        //}
-        
-    //}
-
-    //CREATE GRID
-    function CreateGrid(xmlType, jsonArray) {
-        var columnsList = [];
-        var xmlColumns = xmlType.getElementsByTagName('GridColumns')[0].childNodes;
-        var xmlDataItems = xmlType.firstChild.childNodes;
-        for (j = 0; j < xmlDataItems.length; j++){
-            if(xmlDataItems[j].nodeName === 'Dimension'){
-                columnsList.push(xmlDataItems[j].getAttribute('DataMember'));
+            if (actualValue < originTarget) {
+                actualValue = actualValue.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,');
+                targetValue = targetValue.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,');
+                $('<div class="content-style card">').appendTo('.content')
+                .html('<div align="center"><h1 class="card-headline">' + actualKey + ' vs. ' + targetKey + '</h1></div><div align="right"><p class="actual">' + actualValue + '</p><p class="percentage-negative percentage"><strong>' + percentage + ' %</strong></p><h2 class="target-negative target"><span class="arrow-down"></span><strong>' + targetValue + '</strong></h2></div>');
+            } else if (actualValue > originTarget) {
+                actualValue = actualValue.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,');
+                targetValue = targetValue.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,');
+                $('<div class="content-style card">').appendTo('.content')
+                .html('<div align="center"><h1 class="card-headline">' + actualKey + ' vs. ' + targetKey + '</h1></div><div align="right"><p class="actual">' + actualValue + '</p><p class="percentage-positive percentage"><strong>+' + percentage + ' %</strong></p><h2 class="target-positive target"><span class="arrow-up"></span><strong>+' + targetValue + '</strong></h2></div>');
+            } else {
+                actualValue = actualValue.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,');
+                targetValue = targetValue.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,');
+                $('<div class="content-style card">').appendTo('.content')
+                .html('<div align="center"><h1 class="card-headline">' + actualKey + ' vs. ' + targetKey + '</h1></div><div align="right"><p class="actual">' + actualValue + '</p><p class="percentage-neutral percentage"><strong>' + percentage + ' %</strong></p><h2 class="target-neutral target"><strong>+' + targetValue + '</strong></h2></div>');
             }
         }
-        for (j = 0; j < xmlDataItems.length; j++) {
-            if (xmlDataItems[j].nodeName != 'Dimension') {
-                columnsList.push(xmlDataItems[j].getAttribute('DataMember'));
-            }
-        }
-        
-        $('<div class="content-style grid">').appendTo('.content').dxDataGrid({
-            dataSource: jsonArray,
-            columns: columnsList,
-            paging: {
-                pageSize: 5
-            },
-            rowPrepared: function (rowElement, rowInfo) {
-                rowElement.css('background', '#282828');
-                rowElement.css('color', '#a1a1a1');
-            }
-
-        })
     }
 
     var viewModel = {
         headline: params.id.Name,
-        xmlDoc: ko.observable(""),
         popUpVisible: ko.observable(false),
         popupClicked: function (params) {
             var result = params.validationGroup.validate();

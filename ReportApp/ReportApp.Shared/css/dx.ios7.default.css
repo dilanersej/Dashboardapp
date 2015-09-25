@@ -88,7 +88,7 @@
 }
 .dx-datagrid .dx-datagrid-content-fixed .dx-datagrid-table .dx-col-fixed
 {
-  background-color: #fff;
+  background-color: rgba(0,0,0,0.84);
 }
 .dx-datagrid .dx-datagrid-rowsview .dx-data-row td.dx-pointer-events-none, .dx-datagrid .dx-datagrid-rowsview .dx-freespace-row td.dx-pointer-events-none, .dx-datagrid .dx-datagrid-headers .dx-row td.dx-pointer-events-none
 {
@@ -5728,6 +5728,7 @@
 }
 .dx-datagrid.dx-datagrid-borders>.dx-datagrid-pager, .dx-datagrid.dx-datagrid-borders>.dx-datagrid-headers, .dx-datagrid.dx-datagrid-borders>.dx-datagrid-rowsview
 {
+  
   border-top: 1px solid #c8c8c8;
 }
 .dx-datagrid .dx-menu-items-container .dx-menu-item .dx-icon-context-menu-sort-asc
@@ -6054,7 +6055,6 @@
 }
 .dx-datagrid-headers .dx-datagrid-table .dx-row:first-child>td
 {
-  background-color: rgba(0,0,0,0);
 }
 .dx-datagrid-headers .dx-datagrid-table .dx-row>td
 {
@@ -6274,6 +6274,7 @@
 {
   border-top: 1px solid transparent;
   border-bottom: 1px solid transparent;
+  background-color: transparent;
 }
 .dx-datagrid-rowsview .dx-row.dx-edit-row>td
 {
@@ -6425,7 +6426,8 @@
 }
 .dx-datagrid-pager.dx-widget
 {
-  color: #000;
+  background-color: rgba(0,0,0,0.84);
+  color: #FFF;
 }
 .dx-datagrid-total-footer
 {
@@ -6482,11 +6484,11 @@
 }
 .dx-datagrid-table-fixed .dx-row.dx-group-row
 {
-  background-color: #fff;
+  background-color: rgba(0,0,0,0.84);
 }
 .dx-datagrid-table-fixed .dx-row.dx-group-row td
 {
-  background-color: #fff;
+  background-color: rgba(0,0,0,0.84);
 }
 .dx-menu-base
 {

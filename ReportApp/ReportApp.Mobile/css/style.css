@@ -20,7 +20,7 @@ h1 {
 }
 
 .xml-name{
-    color: #FFFFFF;
+    color: #fff;
 }
 
 .graph{
@@ -31,32 +31,81 @@ h1 {
 
 }
 
-.pivot{
-
-}
-
 .gauge{
 
 }
 
-.combo-box{
-    color: white;
+.card-headline{
+    color: #afafaf;
 }
 
-.range-filter{
-
+.actual{
+    font-size: 25px !important;
+    color: #afafaf;
 }
 
-.list-box{
-
+.target{
+    font-size: 35px !important;
 }
 
-.tree-view{
-
+.target-positive{
+    color: #3bc421;
 }
 
-.grid{
-    
+.target-negative{
+    color: #ad1f1f;
+}
+
+.target-neutral{
+    color: #808080;
+}
+
+.percentage{
+    font-size: 25px !important;
+}
+
+.percentage-positive{
+    color: #3bc421;
+}
+
+.percentage-negative{
+    color: #ad1f1f;
+}
+
+.percentage-neutral{
+    color: #808080;
+}
+
+.arrow-up {
+	border-left: 20px solid transparent;
+	border-right: 20px solid transparent;
+	
+	border-bottom: 20px solid #3bc421;
+}
+
+.arrow-down {
+	border-left: 20px solid transparent;
+	border-right: 20px solid transparent;
+	
+	border-top: 20px solid #ad1f1f;
+}
+
+.about-headline{
+    color: #fff;
+}
+
+.about-content{
+    width: 90%;
+    margin-left: 5%;
+    background-color: #282828;
+    padding: 5%;
+    border-radius: 5%;
+}
+
+.about-p-text{
+    margin-top: 5%;
+    color: #afafaf;
+    line-height: 20px
 }
 
 .login-fields{

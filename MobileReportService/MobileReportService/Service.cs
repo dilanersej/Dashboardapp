@@ -51,7 +51,7 @@ namespace MobileReportService
             var xmlList = new List<XmlFileDTO>();
             using (var db = new ReportEntities())
             {
-                var dbList = db.Catalog.Where(x => x.Path.Contains("/Dashboard/") && x.Path.Contains(".xml")).Select(x => new { x.ItemID, x.Name}).ToList();
+                var dbList = db.Catalog.Where(x => x.Path.Contains("/Dashboard/Mobile/") && x.Path.Contains(".xml")).Select(x => new { x.ItemID, x.Name}).ToList();
                 foreach (var item in dbList)
                 {
 
@@ -130,7 +130,7 @@ namespace MobileReportService
                 }
                 return (int)codes.success;
             } catch(DbUpdateException e){
-                return -2;
+                return (int)codes.user_exists;
             } catch(Exception e){
                 return (int)codes.fail;
             }

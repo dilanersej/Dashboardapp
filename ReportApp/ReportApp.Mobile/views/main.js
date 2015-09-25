@@ -4,15 +4,7 @@
     //var baseAddress = 'http://localhost:8733/Design_Time_Addresses/MobileReportServiceDebugMode/Service/';
 
 
-    var dataSource = new DevExpress.data.DataSource({
-        load: function (loadOptions) {
-            return $.getJSON(baseAddress + "dashboards",
-                function (data) {
-                    return data;
-                });
-        }
-       
-    });
+    var dataSource = new DevExpress.data.DataSource(baseAddress + "dashboards");
 
 
     function graphNavigation(xmlItem) {
