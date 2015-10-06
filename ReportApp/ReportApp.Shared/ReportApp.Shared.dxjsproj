@@ -23,6 +23,9 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="images\logo.png" />
+    <Content Include="images\TD_Logo_Blue_1340x260.png">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="js\dx.all.js" />
     <Content Include="js\dx.all.debug.js" />
     <Content Include="js\localization\dx.all.de.js" />

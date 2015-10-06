@@ -4,15 +4,15 @@
             <div data-bind="dxPopup: { visible: popUpVisible, height: 200, title: 'Login to MSSQL' }">
                 <div data-bind="dxValidationGroup: { }">
                     <div id="userId" data-bind="dxTextBox: { placeholder: 'Enter user ID',  },
-                        dxValidator: { validationRules: [{
-                                type: 'required',
-                                message: 'Please enter a valid user ID'
-                        }] }"></div>
+                    dxValidator: { validationRules: [{
+                            type: 'required',
+                            message: 'Please enter a valid user ID'
+                    }] }"></div>
                     <div id="password" data-bind="dxTextBox: { placeholder: 'Enter password', mode: 'password' },
-                        dxValidator: { validationRules: [{
-                                type: 'required',
-                                message: 'Please enter a valid password'
-                        }] }"></div><br />
+                    dxValidator: { validationRules: [{
+                            type: 'required',
+                            message: 'Please enter a valid password'
+                    }] }"></div><br />
                     <div class="btn-full" data-bind="dxButton: { text: 'OK', onClick: popupClicked }"></div>
                 </div>
             </div>

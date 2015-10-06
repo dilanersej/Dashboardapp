@@ -17,3 +17,4 @@ Version.h
 Version.cpp
 packages/
 /ReportApp.Mobile.dxjsproj
+MobileReportService/MobileReportService/MobileReportService.Publish.xml

@@ -24,28 +24,34 @@
     //GET DATA
     function GetData(xmlDoc, userIdInput, passwordInput) {
         var query = BuildQuery(xmlDoc);
+        //Parameters containing data connection information
         var parameters = xmlDoc.getElementsByTagName('Parameters')[0].childNodes;
         var server = "";
         var database = "";
         var userId = userIdInput;
         var password = passwordInput;
+        //Get data connection information from XML
         for (k = 0; k < parameters.length; k++){
             if(parameters[k].getAttribute('Name') === 'server'){
                 server = parameters[k].getAttribute('Value');
             } else if (parameters[k].getAttribute('Name') === 'database') {
                 database = parameters[k].getAttribute('Value');
             } else if (parameters[k].getAttribute('Name') === 'userid') {
+                //If this parameter exists in the XML
                 if(parameters[k].getAttribute('Value') != ""){
                     userId = parameters[k].getAttribute('Value');
                 }
             } else if (parameters[k].getAttribute('Name') === 'password') {
+                //If this parameter exists in the XML
                 if (parameters[k].getAttribute('Value') != "") {
                     password = parameters[k].getAttribute('Value');
                 }
             }
         }
 
-        if(userId === undefined && password === undefined){
+        //If we didn't find any login information in the XML
+        if (userId === undefined && password === undefined) {
+            //Obtain new login credentials from pop up
             ObtainLoginCredentials();
         } else {
 
@@ -67,14 +73,19 @@
             .done(function (json) {
                 var tmpArray = [];
                 var jsonArray = json;
+                //Build the array from a key/value hash
                 for (i = 0; i < jsonArray.length; i++) {
+                    //Create new object
                     var item = {};
                     for (j = 0; j < jsonArray[i].length; j++) {
+                        //Add the object property name (key) and the assigned value (value)
                         item[jsonArray[i][j].Key] = jsonArray[i][j].Value
                     }
+                    //Push this item to final array
                     tmpArray.push(item);
                 }
                 x = xmlDoc.getElementsByTagName('Items')[0].childNodes;
+                //For each tag in the parent tag <Items>, check the type, and build the type (graph, card, etc.)
                 for (i = 0; i < x.length; i++) {
                     CheckType(x[i], tmpArray);
                 }
@@ -86,6 +97,7 @@
         }
     }
 
+    //OBTAIN LOGIN CREDENTIALS
     function ObtainLoginCredentials() {
         viewModel.popUpVisible(true);
     }
@@ -96,7 +108,9 @@
         var tableList = [];
         var query = "SELECT";
         var relations = [];
+        //Get all table information from the XML
         var tables = xmlDoc.getElementsByTagName('Table');
+        //Build the SELECT using these table information
         for (h = 0; h < tables.length; h++){
             for (j = 0; j < tables[h].childNodes.length; j++) {
                 if (h === 0 && j === 0) {
@@ -119,15 +133,20 @@
             tableList[k] = tables[k].getAttribute('Name');
         }
 
+        //Get all relations from the XML
         relations = xmlDoc.getElementsByTagName('Relation');
+        
+        //Build the FROM
         if(relations.length != 0){
             query += " FROM [" + relations[0].getAttribute('Parent') + "]";
         } else {
             query += " FROM [" + tableList[tableList.length - 1] + "]";
         }
 
+        //Hash to keep track of used relations, to make sure we don't JOIN twice, with the same table
         var used = {};
 
+        //If relations exist in the XML, build the JOINs correctly
         for (k = 0; k < relations.length; k++){
             var keyColumns = relations[k].childNodes;
             var count1 = 0;
@@ -158,8 +177,6 @@
             }
         }
 
-        console.log(query);
-
         return query;
     }
 
@@ -189,6 +206,7 @@
     function CreateChart(xmlType, jsonArray) {
         var type = "";
         var seriesList = [];
+        //Get title of the graph
         var title = xmlType.getAttribute('Name')
         
         if (xmlType.lastChild.firstChild.firstChild.firstChild.getAttribute('SeriesType') === null) {
@@ -197,23 +215,30 @@
             type = xmlType.lastChild.firstChild.firstChild.firstChild.getAttribute('SeriesType').toLowerCase();
         }
 
+        //If this graph has multiple series
         if (xmlType.getElementsByTagName('SeriesDimensions')[0] != null) {
             var seriesDimensions = xmlType.getElementsByTagName('SeriesDimensions')[0].childNodes;
             for (k = 0; k < seriesDimensions.length; k++) {
                 var name = "";
                 var argument = "";
+                //Get all dataItems, so we can compare with the data needed for the specific axis'
                 var dataItems = xmlType.getElementsByTagName('DataItems')[0].childNodes;
                 for (l = 0; l < dataItems.length ; l++){
                     if (seriesDimensions[k].getAttribute('UniqueName') === dataItems[l].getAttribute('UniqueName')) {
+                        //If the UniqueName of the data we need on this axis = the UniqueName of the dataItem we're currently iteration through: Use this dataItems DataMember
                         name = dataItems[l].getAttribute('DataMember');
                         argument = name;
                     }
                 }
+                //Push this series into the series array, with all the information needed
                 seriesList.push({ name: name, argumentField:argument, valueField: xmlType.firstChild.getElementsByTagName('Measure')[0].getAttribute("DataMember"), type: type })
             }
         } else {
+            //If this graph only has one series (the XML will always look the same in this case)
             seriesList.push({ name: xmlType.firstChild.getElementsByTagName('Measure')[0].getAttribute('DataMember'), argumentField: xmlType.firstChild.getElementsByTagName('Dimension')[0].getAttribute("DataMember"), valueField: xmlType.firstChild.getElementsByTagName('Measure')[0].getAttribute("DataMember"), type: type })
         }
+
+        //Build this graph to the UI (HTML)
         $('<div class="content-style chart">').appendTo('.content').dxChart({
             dataSource: jsonArray,
             series: seriesList,
@@ -238,20 +263,28 @@
         var series = {};
         var value = "";
         var argument = "";
+        //Get title of the Pie chart
         var title = xmlType.getAttribute('Name');
+        //Get all dataItems, so we can compare with the data needed for the specific argument and value
         var dataItems = xmlType.getElementsByTagName('DataItems')[0].childNodes;
 
+        //Get the name UniqueName of the argument
         var argumentUniqueName = xmlType.getElementsByTagName('Arguments')[0].firstChild.getAttribute('UniqueName');
+        //Get the name UniqueName of the value
         var valueUniqueName = xmlType.getElementsByTagName('Values')[0].firstChild.getAttribute('UniqueName');
 
-        for (k = 0; k < dataItems.length; k++){
+        //Iterate through the dataItems
+        for (k = 0; k < dataItems.length; k++) {
+            //If the UniqueName of this dataItem = the argument name: use this dataItem's DataMember
             if(dataItems[k].getAttribute('UniqueName') === argumentUniqueName){
                 argument = dataItems[k].getAttribute('DataMember');
-            } else if(dataItems[k].getAttribute('UniqueName') === valueUniqueName){
+            } else if (dataItems[k].getAttribute('UniqueName') === valueUniqueName) {
+                //Otherwise, if the UniqueName of this dataItem iteration = the value name: use this dataItem's DataMember
                 value = dataItems[k].getAttribute('DataMember');
             }
         }
 
+        //Buidl the series that we need in the chart
         series = {
             name: argument,
             argumentField: argument,
@@ -265,6 +298,7 @@
             }
         };
 
+        //Build the actual chart to the UI (HTML)
         $('<div class="content-style pie">').appendTo('.content').dxPieChart({
             dataSource: jsonArray,
             series: series,
@@ -276,6 +310,7 @@
                 }
             },
             onPointClick: function (e) {
+                //Function making it possible to hide/show this specific item
                 var point = e.target;
                 point.isVisible() ? point.hide() : point.show();
             },
@@ -289,20 +324,22 @@
     function CreateGauge(xmlType, jsonArray) {
 
         var endValue = 0;
-        for (k = 0; k < jsonArray.length; k++){
+        for (k = 0; k < jsonArray.length; k++) {
+            //Iterate through the array, to find the biggest entry
             var value = xmlType.firstChild.lastChild.getAttribute('DataMember')
-            if(k === 0){
-                endValue = jsonArray[k][value];
-            } else if(jsonArray[k][value] > endValue){
+            if (jsonArray[k][value] > endValue) {
+                //If this iteration's entry is bigger than endValue, apply this entry's value to the endValue
                 endValue = jsonArray[k][value];
             }
         }
 
+        //if the gauge is a LinearVertical gauge, build the gauge
         if (xmlType.getAttribute('ViewType') === 'LinearVertical') {
             //VERTICAL GAUGE
             var title = xmlType.getAttribute('Name')
             for (k = 0; k < jsonArray.length; k++) {
                 var jsonItem = jsonArray[k];
+                //The value will always be in the same spot
                 var value = jsonItem[xmlType.firstChild.lastChild.getAttribute('DataMember')];
                 $('<div class="content-style gauge">').appendTo('.content').dxLinearGauge({
                     geomerty: { orientation: 'vertical' },
@@ -323,11 +360,14 @@
                     }
                 })
             }
-        } else if (xmlType.getAttribute('ViewType') === 'LinearHorizontal') {
+        }
+        //If the gauge is a LinearHorizontal gauge, build the gauge
+        else if (xmlType.getAttribute('ViewType') === 'LinearHorizontal') {
             //HORIZONTAL GAUGE
             var title = xmlType.getAttribute('Name')
             for (k = 0; k < jsonArray.length; k++) {
                 var jsonItem = jsonArray[k];
+                //The value will always be in the same spot
                 var value = jsonItem[xmlType.firstChild.lastChild.getAttribute('DataMember')];
                 $('<div class="content-style gauge">').appendTo('.content').dxLinearGauge({
                     scale: {
@@ -347,11 +387,14 @@
                     }
                 })
             }
-        } else {
+        }
+        //If none above, the gauge has to be a circular gauge: build the gauge
+        else {
             //CIRCULAR GAUGE
             var title = xmlType.getAttribute('Name')
             for (k = 0; k < jsonArray.length; k++) {
                 var jsonItem = jsonArray[k];
+                //The value will always be in the same spot
                 var value = jsonItem[xmlType.firstChild.lastChild.getAttribute('DataMember')];
                 $('<div class="content-style gauge">').appendTo('.content').dxCircularGauge({
                     scale: {
@@ -377,20 +420,27 @@
         }
     }
 
+    //CREATE CARD
     function CreateCard(xmlType, jsonArray) {
+        //Get all dataItems
         var dataItems = xmlType.getElementsByTagName('DataItems')[0].childNodes;
+        //Get all cards, as multiple cards within one card, is possible
         var cards = xmlType.getElementsByTagName('Card');
         for (l = 0; l < cards.length; l++) {
             var actualKey;
             var targetKey;
+            //Get the card values
             var cardValues = xmlType.getElementsByTagName('Card')[l].childNodes;
             var actualValue;
             var targetValue;
             for (k = 0; k < cardValues.length; k++){
-                if(cardValues[k].nodeName === 'ActualValue'){
+                if (cardValues[k].nodeName === 'ActualValue') {
+                    //If the nodeName is ActualTarget, iterate through the dataItems, to find this specific dataItem
                     for (j = 0; j < dataItems.length; j++){
                         if (cardValues[k].getAttribute('UniqueName') === dataItems[j].getAttribute('UniqueName')) {
+                            //Hash to combine all values into one single value (Summing all entries' value)
                             var hash = {};
+                            //Iterate through the jsonArray, as this value needs to be the SUM of all entries' actualValue
                             for (m = 0; m < jsonArray.length; m++) {
                                 if(!hash[dataItems[j].getAttribute('DataMember')]){
                                     hash[dataItems[j].getAttribute('DataMember')] = jsonArray[m][dataItems[j].getAttribute('DataMember')];
@@ -402,14 +452,21 @@
                             actualValue = hash[dataItems[j].getAttribute('DataMember')];
                         }
                     }
-                } else if (cardValues[k].nodeName === 'TargetValue') {
+                }
+                //Otherwise, find the targetValue
+                else if (cardValues[k].nodeName === 'TargetValue') {
                     for (j = 0; j < dataItems.length; j++) {
                         if (cardValues[k].getAttribute('UniqueName') === dataItems[j].getAttribute('UniqueName')) {
+                            //Hash to combine all values into one single value (Summing all entries' value)
                             var hash = {};
+                            //Iterate through the jsonArray, as this value needs to be the SUM of all entries' targetValue
                             for (m = 0; m < jsonArray.length; m++) {
+                                //If the hash with the DataMember key doesn't exist, crate it
                                 if (!hash[dataItems[j].getAttribute('DataMember')]) {
                                     hash[dataItems[j].getAttribute('DataMember')] = jsonArray[m][dataItems[j].getAttribute('DataMember')];
-                                } else {
+                                }
+                                //Otherwise, just add the iterations value to the existing value defined by this key
+                                else {
                                     hash[dataItems[j].getAttribute('DataMember')] += jsonArray[m][dataItems[j].getAttribute('DataMember')];
                                 }
                             }
@@ -421,21 +478,28 @@
             }
 
             var originTarget = targetValue;
+            //Target value should be actual-target (eks. 20-15 = 5 (the difference is 5))
             targetValue = actualValue - targetValue;
 
+            //Calculate percentage difference (Using *100 / 100 to only show 2 digits)
             var percentage = Math.ceil((targetValue / actualValue * 100) * 100) / 100;
 
+            //If the actual value is greater than the target value, we need to show the upwards pointing GREEN arrow: Build the card
             if (actualValue < originTarget) {
                 actualValue = actualValue.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,');
                 targetValue = targetValue.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,');
                 $('<div class="content-style card">').appendTo('.content')
                 .html('<div align="center"><h1 class="card-headline">' + actualKey + ' vs. ' + targetKey + '</h1></div><div align="right"><p class="actual">' + actualValue + '</p><p class="percentage-negative percentage"><strong>' + percentage + ' %</strong></p><h2 class="target-negative target"><span class="arrow-down"></span><strong>' + targetValue + '</strong></h2></div>');
-            } else if (actualValue > originTarget) {
+            }
+            //If the actual value is less than the target, we need to show the downwards pointing RED arrow: Build the card
+            else if (actualValue > originTarget) {
                 actualValue = actualValue.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,');
                 targetValue = targetValue.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,');
                 $('<div class="content-style card">').appendTo('.content')
                 .html('<div align="center"><h1 class="card-headline">' + actualKey + ' vs. ' + targetKey + '</h1></div><div align="right"><p class="actual">' + actualValue + '</p><p class="percentage-positive percentage"><strong>+' + percentage + ' %</strong></p><h2 class="target-positive target"><span class="arrow-up"></span><strong>+' + targetValue + '</strong></h2></div>');
-            } else {
+            }
+            //If the actual value isn't greater nor less than the target, we don't need to show any arrow, as we hit the target: Build the card
+            else {
                 actualValue = actualValue.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,');
                 targetValue = targetValue.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1,');
                 $('<div class="content-style card">').appendTo('.content')
@@ -445,16 +509,24 @@
     }
 
     var viewModel = {
+        //Headline showing the title of the dashboard
         headline: params.id.Name,
+        //Variable to define whether to show the pop up or not
         popUpVisible: ko.observable(false),
+        //Function to call whenever we press the "OK" in the pop up window
         popupClicked: function (params) {
             var result = params.validationGroup.validate();
             if (result.isValid) {
+                //Hide the pop up if the validation is OK
                 viewModel.popUpVisible(false);
+                //Call the "GetData" function again, this time with the password and userId from the fields the user entered in the pop up, as parameters
                 GetData(xml, $('#userId').dxTextBox('option', 'value'), $('#password').dxTextBox('option', 'value'));
             }
         }
     };
 
     return viewModel;
+
+    
+
 };
